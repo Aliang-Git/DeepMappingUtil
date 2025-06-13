@@ -1,0 +1,60 @@
+// 插入 A001 映射规则
+db.product_mappings.insertOne({
+  productCode: "A001",
+  mappings: [
+    {
+      sourcePath: "$.customer.name",
+      targetPath: "$.buyer.fullName",
+      processors: ["uppercase"]
+    },
+    {
+      sourcePath: "$.order[*].amount",
+      targetPath: "$.trade.total",
+      processors: ["multiplyByTen"]
+    },
+    {
+      sourcePath: "$.order[*].no",
+      targetPath: "$.trade.orderId",
+      processors: ["multiplyByTen"]
+    }
+  ]
+});
+
+// 插入 B002 映射规则
+db.product_mappings.insertOne({
+  productCode: "B002",
+  mappings: [
+    {
+      sourcePath: "$.user.firstName",
+      targetPath: "$.person.firstName",
+      processors: []
+    },
+    {
+      sourcePath: "$.payment.date",
+      targetPath: "$.transaction.date",
+      processors: ["dateFormat:yyyy-MM-dd"]
+    }
+  ]
+});
+
+// 插入 C003 映射规则
+db.product_mappings.insertOne({
+  productCode: "C003",
+  mappings: [
+    {
+      sourcePath: "$.user.nickName",
+      targetPath: "$.customer.nickname",
+      processors: ["lowercase"]
+    },
+    {
+      sourcePath: "$.order.status",
+      targetPath: "$.trade.status",
+      processors: ["statusToChinese"]
+    },
+    {
+      sourcePath: "$.payment.amount",
+      targetPath: "$.finance.total",
+      processors: ["roundTwoDecimal"]
+    }
+  ]
+});
