@@ -19,7 +19,7 @@ public class RoundTwoDecimalProcessor implements ValueProcessor {
         }
 
         if (value instanceof Number) {
-            BigDecimal bd = new BigDecimal(((Number) value).doubleValue());
+            BigDecimal bd = BigDecimal.valueOf(((Number) value).doubleValue());
             return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
         return value;

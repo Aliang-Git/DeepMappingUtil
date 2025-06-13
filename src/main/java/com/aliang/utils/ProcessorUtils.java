@@ -17,7 +17,7 @@ public class ProcessorUtils {
                 result.add(processor.apply(item));
             }
         }
-        System.out.println("processList处理后："+result);
+        System.out.println("processList处理后：" + result);
         return result;
     }
 
@@ -39,7 +39,7 @@ public class ProcessorUtils {
                 result.put(stringKey, processor.apply(value));
             }
         }
-        System.out.println("processMap处理后："+result);
+        System.out.println("processMap处理后：" + result);
         return result;
     }
 
@@ -50,7 +50,7 @@ public class ProcessorUtils {
         } else if (value instanceof Map<?, ?>) {
             return processMap((Map<?, ?>) value, processor);
         }
-        System.out.println("processCollection处理后："+value);
+        System.out.println("processCollection处理后：" + value);
         return value;
     }
 }

@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSONObject;
  * 映射引擎，提供统一入口进行映射操作
  */
 public class MappingEngine {
-    private MappingRegistry registry;
+    private final MappingRegistry registry;
 
     public MappingEngine(MappingRegistry registry) {
         this.registry = registry;

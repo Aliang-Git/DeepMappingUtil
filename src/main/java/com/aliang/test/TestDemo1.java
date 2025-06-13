@@ -14,8 +14,8 @@ public class TestDemo1 {
         TestDemo1 demo1 = new TestDemo1();
 //        demo1.test01();
 //        demo1.test02();
-//        demo1.test03();
-        demo1.test04();
+        demo1.test03();
+//        demo1.test04();
     }
 
 
@@ -244,7 +244,7 @@ public class TestDemo1 {
                 "    {\n" +
                 "      \"sourcePath\": \"$.user.gender\",\n" +
                 "      \"targetPath\": \"$.profile.gender\",\n" +
-                "      \"processors\": [\"mapValue:male=男,female=女,other=未知\"]\n" +
+                "      \"processors\": [\"mapValue:male=男;female=女;other=未知\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"sourcePath\": \"$.user.isVip\",\n" +
@@ -371,9 +371,9 @@ public class TestDemo1 {
         String configJson = "{\n" +
                 "  \"X001\": [\n" +
                 "    {\n" +
-                    "\"sourcePath\": \"$.orders[*].status\",\n" +
-                    "  \"targetPath\": \"$.order.statusLabel\",\n" +
-                    "  \"processors\": [\"mapValue:1=已发货;2=已取消;3=处理中\"]" +
+                "\"sourcePath\": \"$.orders[*].status\",\n" +
+                "  \"targetPath\": \"$.order.statusLabel\",\n" +
+                "  \"processors\": [\"mapValue:1=已发货;2=已取消;3=处理中\"]" +
                 "    }\n" +
                 "  ]\n" +
                 "}";

@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.*;
 
 /**
- *
  * 某个产品编码（如 A001）下的所有字段映射规则集合
  */
 @Data

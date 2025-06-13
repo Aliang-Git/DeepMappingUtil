@@ -20,6 +20,11 @@ public class FieldMapping {
 
     private MappingLogger logger = new Slf4jMappingLogger();
 
+    public FieldMapping(String sourcePath, String targetPath) {
+        this.sourcePath = sourcePath;
+        this.targetPath = targetPath;
+    }
+
     public void apply(JSONObject source, JSONObject target) {
         try {
             Object value = JSONPath.eval(source, sourcePath);
@@ -33,8 +38,8 @@ public class FieldMapping {
             // 处理器链执行
             for (ValueProcessor processor : processors) {
                 value = processor.process(value);
-                System.out.println(processor.getClass().getSimpleName()+"执行结束!,value:"+value);
-                System.out.println("");
+                System.out.println(processor.getClass().getSimpleName() + "执行结束!,value:" + value);
+                System.out.println();
             }
             // 设置目标值
             JSONPath.set(target, targetPath, value);
@@ -43,10 +48,6 @@ public class FieldMapping {
         } catch (Exception e) {
             logger.warn("字段映射失败：源路径={}，目标路径={}，错误={}", sourcePath, targetPath, e.getMessage(), e);
         }
-    }
-    public FieldMapping(String sourcePath, String targetPath) {
-        this.sourcePath = sourcePath;
-        this.targetPath = targetPath;
     }
 
     public FieldMapping addProcessors(ValueProcessor... processors) {

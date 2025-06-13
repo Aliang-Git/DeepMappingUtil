@@ -6,12 +6,11 @@ import com.aliang.utils.*;
 import java.util.*;
 
 /**
- *
  * map转换
- *
+ * <p>
  * "sourcePath": "$.order.status",
- *   "targetPath": "$.order.statusLabel",
- *   "processors": ["mapValue:1=已发货;2=已取消;3=处理中"]
+ * "targetPath": "$.order.statusLabel",
+ * "processors": ["mapValue:1=已发货;2=已取消;3=处理中"]
  */
 public class MapValueProcessor implements ValueProcessor {
     private final Map<String, String> mapping;
