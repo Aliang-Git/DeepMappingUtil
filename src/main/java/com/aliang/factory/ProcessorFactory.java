@@ -12,7 +12,7 @@ public class ProcessorFactory {
     public List<ValueProcessor> createProcessors(List<String> processorNames) {
         List<ValueProcessor> processors = new ArrayList<>();
         for (String processorName : processorNames) {
-            String[] parts = processorName.split(":");
+            String[] parts = processorName.split(":",2);
             String name = parts[0].toLowerCase();
             String params = parts.length > 1 ? parts[1] : null;
             

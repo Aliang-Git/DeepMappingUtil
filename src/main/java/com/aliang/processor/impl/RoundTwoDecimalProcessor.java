@@ -8,6 +8,7 @@ import java.util.*;
 
 /**
  * 四舍五入处理器
+ * 将数值四舍五入到指定的小数位数
  */
 public class RoundTwoDecimalProcessor implements ValueProcessor {
     @Override
@@ -16,8 +17,9 @@ public class RoundTwoDecimalProcessor implements ValueProcessor {
             return ProcessorUtils.processCollection(value, this::doProcess);
         }
         if (value instanceof Number) {
-            BigDecimal bd = BigDecimal.valueOf(((Number) value).doubleValue());
-            return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();
+            // 使用 BigDecimal 来保持精度
+            BigDecimal bd = new BigDecimal(value.toString());
+            return bd.setScale(2, RoundingMode.HALF_UP);  // 直接返回 BigDecimal
         }
         return value;
     }

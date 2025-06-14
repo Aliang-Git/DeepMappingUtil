@@ -178,7 +178,23 @@ public class FieldMapping {
                 }
             }
 
-            // 处理器链执行
+            // 先执行聚合策略
+            if (!aggregationStrategies.isEmpty() && value instanceof List) {
+                for (AggregationStrategy strategy : aggregationStrategies) {
+                    try {
+                        value = strategy.apply((List<?>) value);
+                        logger.debug("聚合策略 {} 执行完成，结果：{}", strategy.getClass().getSimpleName(), value);
+                    } catch (Exception e) {
+                        String message = String.format("聚合策略执行失败：策略=%s，源路径=%s，目标路径=%s，错误=%s", 
+                            strategy.getClass().getSimpleName(), sourcePath, targetPath, e.getMessage());
+                        logger.error(message);
+                        invalidFields.add(sourcePath);
+                        return target;
+                    }
+                }
+            }
+
+            // 再执行处理器链
             boolean processorSuccess = true;
             for (ValueProcessor processor : processors) {
                 try {
@@ -200,39 +216,25 @@ public class FieldMapping {
                 return target;
             }
 
-            // 聚合处理
-            boolean strategySuccess = true;
-            if (aggregationStrategies != null && !aggregationStrategies.isEmpty() && value instanceof List) {
-                for (AggregationStrategy strategy : aggregationStrategies) {
-                    try {
-                        value = strategy.apply((List<?>) value);
-                        logger.debug("聚合策略 {} 执行完成，结果：{}", strategy.getClass().getSimpleName(), value);
-                    } catch (Exception e) {
-                        String message = String.format("聚合策略执行失败：策略=%s，源路径=%s，目标路径=%s，错误=%s", 
-                            strategy.getClass().getSimpleName(), sourcePath, targetPath, e.getMessage());
-                        logger.error(message);
-                        strategySuccess = false;
-                        invalidFields.add(sourcePath);
-                        return target;
-                    }
-                }
+            // 如果结果是单元素列表，提取出单个值
+            if (value instanceof List && ((List<?>) value).size() == 1) {
+                value = ((List<?>) value).get(0);
             }
 
-            // 如果聚合策略执行失败，标记字段为无效
-            if (!strategySuccess) {
-                invalidFields.add(sourcePath);
-                return target;
+            // 如果目标路径是数组中的元素，确保值是单个值而不是数组
+            if (targetPath.contains("[") && value instanceof List) {
+                if (((List<?>) value).size() == 1) {
+                    value = ((List<?>) value).get(0);
+                }
             }
 
             // 设置目标值
             JSONPath.set(target, targetPath, value);
-            // 调试日志
-            logger.debug("字段映射成功：{} -> {}，值={}", sourcePath, targetPath, value);
             return target;
         } catch (Exception e) {
-            String message = String.format("字段映射失败：源路径=%s，目标路径=%s，错误=%s", 
+            String message = String.format("字段映射执行失败：源路径=%s，目标路径=%s，错误=%s", 
                 sourcePath, targetPath, e.getMessage());
-            logger.warn(message);
+            logger.error(message);
             invalidFields.add(sourcePath);
             return target;
         }

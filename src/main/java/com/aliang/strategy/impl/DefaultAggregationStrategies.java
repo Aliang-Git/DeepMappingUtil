@@ -2,6 +2,7 @@ package com.aliang.strategy.impl;
 
 import com.aliang.strategy.*;
 
+import java.math.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -16,10 +17,12 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
                 return null;
             }
             
-            return values.stream()
+            BigDecimal sum = values.stream()
                     .filter(value -> value instanceof Number)
-                    .map(value -> ((Number) value).doubleValue())
-                    .reduce(0.0, Double::sum);
+                    .map(value -> new BigDecimal(value.toString()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            return sum.setScale(2, RoundingMode.HALF_UP);  // 直接返回 BigDecimal，保留两位小数
         }
     },
 
@@ -81,7 +84,15 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     FIRST {
         @Override
         public Object apply(List<?> values) {
-            return values == null || values.isEmpty() ? null : values.get(0);
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            Object first = values.get(0);
+            // 如果第一个值也是列表，返回其第一个元素
+            if (first instanceof List && !((List<?>) first).isEmpty()) {
+                return ((List<?>) first).get(0);
+            }
+            return first;
         }
     },
 

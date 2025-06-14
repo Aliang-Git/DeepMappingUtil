@@ -62,29 +62,14 @@ public class ComplexMappingDemo {
                 "    {\n" +
                 "      \"sourcePath\": \"$.data.level1[*].level2[*].level3[*].level4[*].level5[*].level6[*].level7[*].level8.orders[*].createTime\",\n" +
                 "      \"targetPath\": \"$.result.statistics.firstOrderTime\",\n" +
-                "      \"processors\": [\"dateFormat:yyyy年MM月dd日 HH:mm:ss\"]\n" +
+                "      \"processors\": [\"dateformat:yyyy年MM月dd日 HH:mm:ss\"],\n" +
+                "      \"aggregationStrategies\": [\"first\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"sourcePath\": \"$.data.level1[*].level2[*].level3[*].level4[*].level5[*].level6[*].level7[*].level8.orders[*].createTime\",\n" +
                 "      \"targetPath\": \"$.result.statistics.lastOrderTime\",\n" +
-                "      \"aggregationStrategies\": [\"last\"],\n" +
-                "      \"processors\": [\"dateFormat:yyyy年MM月dd日 HH:mm:ss\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"sourcePath\": \"$.data.level1[*].level2[*].level3[*].level4[*].level5[*].level6[*].level7[*].level8.orders[*].invalidField\",\n" +
-                "      \"targetPath\": \"$.result.statistics.invalidData\",\n" +
-                "      \"processors\": [\"roundTwoDecimal\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"sourcePath\": \"$.data.level1[*].level2[*].level3[*].level4[*].level5[*].level6[*].level7[*].level8.orders[*].amount\",\n" +
-                "      \"targetPath\": \"$.result.statistics.invalidCalculation\",\n" +
-                "      \"processors\": [\"invalidProcessor\"],\n" +
-                "      \"aggregationStrategies\": [\"invalidStrategy\"]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"sourcePath\": \"$.data.level1[*].level2[*].level3[*].level4[*].level5[*].level6[*].level7[*].level8.orders[*].items[*].price\",\n" +
-                "      \"targetPath\": \"$.result.statistics.invalidAggregation\",\n" +
-                "      \"aggregationStrategies\": [\"sum\", \"invalidStrategy\"]\n" +
+                "      \"processors\": [\"dateFormat:yyyy年MM月dd日 HH:mm:ss\"],\n" +
+                "      \"aggregationStrategies\": [\"last\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
@@ -111,18 +96,18 @@ public class ComplexMappingDemo {
                 "                                  \"isVip\": true,\n" +
                 "                                  \"orders\": [\n" +
                 "                                    {\n" +
-                "                                      \"amount\": 100.5,\n" +
+                "                                      \"amount\": 100.654,\n" +
                 "                                      \"status\": \"completed\",\n" +
                 "                                      \"items\": [\n" +
                 "                                        {\n" +
-                "                                          \"price\": 50.25,\n" +
+                "                                          \"price\": 50.5,\n" +
                 "                                          \"quantity\": 2\n" +
                 "                                        }\n" +
                 "                                      ],\n" +
-                "                                      \"createTime\": \"2024-03-20 10:30:00\"\n" +
+                "                                      \"createTime\": \"2024-03-20 10:30:55\"\n" +
                 "                                    },\n" +
                 "                                    {\n" +
-                "                                      \"amount\": 200.75,\n" +
+                "                                      \"amount\": 200.752,\n" +
                 "                                      \"status\": \"processing\",\n" +
                 "                                      \"items\": [\n" +
                 "                                        {\n" +
@@ -166,10 +151,7 @@ public class ComplexMappingDemo {
                 "      \"maxItemPrice\": null,\n" +
                 "      \"totalQuantity\": null,\n" +
                 "      \"firstOrderTime\": null,\n" +
-                "      \"lastOrderTime\": null,\n" +
-                "      \"invalidData\": null,\n" +
-                "      \"invalidCalculation\": null,\n" +
-                "      \"invalidAggregation\": null\n" +
+                "      \"lastOrderTime\": null\n" +
                 "    }\n" +
                 "  }\n" +
                 "}";
