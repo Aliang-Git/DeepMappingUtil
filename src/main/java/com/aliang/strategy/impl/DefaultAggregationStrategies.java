@@ -12,12 +12,14 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     SUM {
         @Override
         public Object apply(List<?> values) {
-            if (values.isEmpty()) return null;
-            double sum = values.stream()
-                    .filter(v -> v instanceof Number)
-                    .mapToDouble(v -> ((Number)v).doubleValue())
-                    .sum();
-            return sum;
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            
+            return values.stream()
+                    .filter(value -> value instanceof Number)
+                    .map(value -> ((Number) value).doubleValue())
+                    .reduce(0.0, Double::sum);
         }
     },
 
@@ -43,10 +45,13 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     MAX {
         @Override
         public Object apply(List<?> values) {
-            if (values.isEmpty()) return null;
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            
             return values.stream()
-                    .filter(v -> v instanceof Number)
-                    .map(v -> ((Number)v).doubleValue())
+                    .filter(value -> value instanceof Number)
+                    .map(value -> ((Number) value).doubleValue())
                     .max(Double::compareTo)
                     .orElse(null);
         }
@@ -58,10 +63,13 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     MIN {
         @Override
         public Object apply(List<?> values) {
-            if (values.isEmpty()) return null;
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            
             return values.stream()
-                    .filter(v -> v instanceof Number)
-                    .map(v -> ((Number)v).doubleValue())
+                    .filter(value -> value instanceof Number)
+                    .map(value -> ((Number) value).doubleValue())
                     .min(Double::compareTo)
                     .orElse(null);
         }
@@ -73,7 +81,7 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     FIRST {
         @Override
         public Object apply(List<?> values) {
-            return values.isEmpty() ? null : values.get(0);
+            return values == null || values.isEmpty() ? null : values.get(0);
         }
     },
 
@@ -83,7 +91,7 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     LAST {
         @Override
         public Object apply(List<?> values) {
-            return values.isEmpty() ? null : values.get(values.size() - 1);
+            return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
         }
     },
 
@@ -93,7 +101,12 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     JOIN {
         @Override
         public Object apply(List<?> values) {
-            return values.stream().map(Object::toString).collect(Collectors.joining(","));
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            return values.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
         }
     },
 
@@ -103,7 +116,7 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     GROUP {
         @Override
         public Object apply(List<?> values) {
-            return values;
+            return values == null ? Collections.emptyList() : values;
         }
     },
 
@@ -113,13 +126,21 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     SUBTRACT {
         @Override
         public Object apply(List<?> values) {
-            if (values.isEmpty()) return null;
-            if (!(values.get(0) instanceof Number)) return null;
-
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            
+            if (!(values.get(0) instanceof Number)) {
+                throw new IllegalArgumentException("SUBTRACT 策略只支持数字类型");
+            }
+            
             double result = ((Number) values.get(0)).doubleValue();
             for (int i = 1; i < values.size(); i++) {
-                if (values.get(i) instanceof Number) {
-                    result -= ((Number) values.get(i)).doubleValue();
+                Object value = values.get(i);
+                if (value instanceof Number) {
+                    result -= ((Number) value).doubleValue();
+                } else {
+                    throw new IllegalArgumentException("SUBTRACT 策略只支持数字类型");
                 }
             }
             return result;

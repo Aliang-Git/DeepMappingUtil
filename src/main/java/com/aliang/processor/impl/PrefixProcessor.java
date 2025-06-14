@@ -16,13 +16,10 @@ public class PrefixProcessor implements ValueProcessor {
     }
 
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行PrefixProcessor，value为：" + value);
-
+    public Object doProcess(Object value) {
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::process);
+            return ProcessorUtils.processCollection(value, this::doProcess);
         }
-
         return prefix + value.toString();
     }
 }

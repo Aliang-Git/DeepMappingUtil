@@ -13,8 +13,7 @@ public class DiscountProcessor implements ValueProcessor {
     }
 
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行DiscountProcessor，vale为：" + value);
+    public Object doProcess(Object value) {
         if (value == null) {
             return null; // 空值直接返回
         }

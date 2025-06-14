@@ -1,7 +1,7 @@
 package com.aliang.test;
 
-import com.aliang.Engine.*;
-import com.aliang.Foctory.*;
+import com.aliang.engine.*;
+import com.aliang.factory.*;
 import com.aliang.mapping.*;
 import com.aliang.parse.*;
 import com.aliang.processor.impl.*;
@@ -152,7 +152,7 @@ public class TestDemo1 {
         MappingRegistry registry = new MappingRegistry();
 
         // 初始化解析器并注册规则
-        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory());
+        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory(), registry);
         parser.parseAndRegister(config, registry);
 
         // 使用引擎进行映射
@@ -270,7 +270,7 @@ public class TestDemo1 {
         MappingRegistry registry = new MappingRegistry();
 
         // 初始化解析器并注册规则
-        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory());
+        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory(), registry);
         parser.parseAndRegister(config, registry);
 
         // 使用引擎进行映射
@@ -384,7 +384,7 @@ public class TestDemo1 {
         MappingRegistry registry = new MappingRegistry();
 
         // 初始化解析器并注册规则
-        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory());
+        MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory(), registry);
         parser.parseAndRegister(config, registry);
 
         // 使用引擎进行映射

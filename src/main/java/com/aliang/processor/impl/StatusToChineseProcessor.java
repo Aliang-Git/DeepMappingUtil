@@ -1,32 +1,33 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.*;
-import com.aliang.utils.*;
-
-import java.util.*;
+import com.aliang.processor.ValueProcessor;
+import com.aliang.utils.ProcessorUtils;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 状态码替换处理器
  */
 public class StatusToChineseProcessor implements ValueProcessor {
-    private final Map<String, String> statusMap = new HashMap<>();
-
-    public StatusToChineseProcessor() {
-        statusMap.put("completed", "已支付");
-        statusMap.put("processing", "未支付");
-        statusMap.put("caneled", "已取消");
-    }
-
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行StatusToChineseProcessor，value为：" + value);
-
+    public Object doProcess(Object value) {
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::process);
+            return ProcessorUtils.processCollection(value, this::doProcess);
         }
-
         if (value instanceof String) {
-            return statusMap.getOrDefault((String) value, "未知状态");
+            String status = (String) value;
+            switch (status.toLowerCase()) {
+                case "pending":
+                    return "待处理";
+                case "processing":
+                    return "处理中";
+                case "completed":
+                    return "已完成";
+                case "cancelled":
+                    return "已取消";
+                default:
+                    return status;
+            }
         }
         return value;
     }

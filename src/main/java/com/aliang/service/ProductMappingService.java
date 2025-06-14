@@ -1,7 +1,7 @@
 package com.aliang.service;
 
-import com.aliang.Engine.MappingEngine;
-import com.aliang.Foctory.ProcessorFactory;
+import com.aliang.engine.MappingEngine;
+import com.aliang.factory.ProcessorFactory;
 import com.aliang.parse.MappingConfigParser;
 import com.aliang.registry.MappingRegistry;
 import com.alibaba.fastjson.JSONObject;
@@ -46,7 +46,7 @@ public class ProductMappingService {
             }
             
             // 2. 解析并注册映射规则
-            MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory());
+            MappingConfigParser parser = new MappingConfigParser(new ProcessorFactory(), registry);
             parser.parseAndRegister(mappingConfig, registry);
             
             // 3. 执行映射

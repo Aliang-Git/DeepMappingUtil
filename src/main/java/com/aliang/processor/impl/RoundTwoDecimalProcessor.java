@@ -11,13 +11,10 @@ import java.util.*;
  */
 public class RoundTwoDecimalProcessor implements ValueProcessor {
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行RoundTwoDecimalProcessor，value为：" + value);
-
+    public Object doProcess(Object value) {
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::process);
+            return ProcessorUtils.processCollection(value, this::doProcess);
         }
-
         if (value instanceof Number) {
             BigDecimal bd = BigDecimal.valueOf(((Number) value).doubleValue());
             return bd.setScale(2, RoundingMode.HALF_UP).doubleValue();

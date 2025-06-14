@@ -20,17 +20,13 @@ public class MapValueProcessor implements ValueProcessor {
     }
 
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行MapValueProcessor，value为：" + value);
-
+    public Object doProcess(Object value) {
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::process);
+            return ProcessorUtils.processCollection(value, this::doProcess);
         }
-
         if (value == null) {
             return null;
         }
-
         String key = value.toString();
         // 查找映射，如果找不到则返回原值
         return mapping.getOrDefault(key, key);

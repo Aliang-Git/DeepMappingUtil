@@ -1,7 +1,6 @@
 package com.aliang.processor.impl;
 
 import com.aliang.processor.*;
-import com.aliang.utils.*;
 
 import java.text.*;
 import java.util.*;
@@ -13,26 +12,46 @@ public class DateFormatProcessor implements ValueProcessor {
     private final String pattern;
 
     public DateFormatProcessor(String pattern) {
-        this.pattern = pattern;
+        this.pattern = pattern != null ? pattern : "yyyy-MM-dd HH:mm:ss";
     }
 
     @Override
-    public Object process(Object value) {
-        System.out.println("开始执行DateFormatProcessor，value为：" + value);
-
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::process);
+    public Object doProcess(Object value) {
+        if (value == null) {
+            return null;
         }
 
-        if (value instanceof Date) {
-            return formatDate((Date) value);
+        if (value instanceof List) {
+            List<?> list = (List<?>) value;
+            List<String> result = new ArrayList<>();
+            for (Object item : list) {
+                result.add(formatDate(item));
+            }
+            return result;
         }
 
-        if (value instanceof String) {
-            return tryParseAndFormat((String) value);
+        return formatDate(value);
+    }
+
+    private String formatDate(Object value) {
+        if (value == null) {
+            return null;
         }
 
-        return value;
+        try {
+            if (value instanceof String) {
+                String dateStr = (String) value;
+                // 尝试解析输入日期字符串
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = inputFormat.parse(dateStr);
+                // 使用指定的格式输出
+                SimpleDateFormat outputFormat = new SimpleDateFormat(pattern);
+                return outputFormat.format(date);
+            }
+            return value.toString();
+        } catch (Exception e) {
+            return value.toString();
+        }
     }
 
     private String formatDate(Date date) {
