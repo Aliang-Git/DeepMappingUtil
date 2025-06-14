@@ -1,6 +1,6 @@
 package com.aliang.utils;
 
-import com.aliang.processor.*;
+import com.aliang.rule.processor.*;
 
 import java.util.*;
 import java.util.function.*;

@@ -1,7 +1,7 @@
 package com.aliang.service;
 
-import com.aliang.engine.*;
-import com.aliang.parse.*;
+import com.aliang.registry.engine.*;
+import com.aliang.registry.parse.*;
 import com.alibaba.fastjson.*;
 import org.slf4j.*;
 

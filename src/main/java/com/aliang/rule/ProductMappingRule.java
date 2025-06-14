@@ -1,6 +1,6 @@
 package com.aliang.rule;
 
-import com.aliang.mapping.*;
+import com.aliang.registry.mapping.*;
 import com.alibaba.fastjson.*;
 import lombok.*;
 
