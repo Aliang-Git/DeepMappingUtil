@@ -1,9 +1,11 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import java.util.List;
-import java.util.Map;
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
+import com.aliang.processor.*;
+import com.aliang.utils.*;
+
+import java.util.*;
 
 /**
  * 小写转换处理器
@@ -58,11 +60,25 @@ import java.util.Map;
  * 5. 不会改变字符串的长度和空白字符
  */
 public class LowercaseProcessor implements ValueProcessor {
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
     @Override
     public Object doProcess(Object value) {
+        if (value == null) {
+            return null;
+        }
+
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
             return ProcessorUtils.processCollection(value, this::doProcess);
         }
-        return value instanceof String ? ((String) value).toLowerCase() : value;
+
+        try {
+            String result = value.toString().toLowerCase();
+            logger.logProcessSuccess("LowercaseProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("LowercaseProcessor", value, e.getMessage());
+            return value;
+        }
     }
 }

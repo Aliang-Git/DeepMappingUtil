@@ -1,11 +1,8 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import org.slf4j.*;
-
-import java.math.*;
-import java.util.*;
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
+import com.aliang.processor.*;
 
 /**
  * 范围映射处理器
@@ -44,46 +41,85 @@ import java.util.*;
  * 3. 支持数组和集合类型的批量转换
  */
 public class RangeProcessor implements ValueProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(RangeProcessor.class);
-    private final BigDecimal min;
-    private final BigDecimal max;
-    private final BigDecimal targetMin;
-    private final BigDecimal targetMax;
+    private final double min;
+    private final double max;
+    private final double targetMin;
+    private final double targetMax;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public RangeProcessor(String config) {
         if (config == null || config.isEmpty()) {
-            throw new IllegalArgumentException("RangeProcessor requires config in format: min,max,targetMin,targetMax");
+            logger.logInvalidConfig("RangeProcessor", config, "0,100,0,1");
+            this.min = 0;
+            this.max = 100;
+            this.targetMin = 0;
+            this.targetMax = 1;
+            return;
         }
+
         String[] parts = config.split(",");
         if (parts.length != 4) {
-            throw new IllegalArgumentException("RangeProcessor config must have 4 parts: min,max,targetMin,targetMax");
+            logger.logInvalidConfig("RangeProcessor", config, "0,100,0,1");
+            this.min = 0;
+            this.max = 100;
+            this.targetMin = 0;
+            this.targetMax = 1;
+            return;
         }
+
         try {
-            this.min = new BigDecimal(parts[0].trim());
-            this.max = new BigDecimal(parts[1].trim());
-            this.targetMin = new BigDecimal(parts[2].trim());
-            this.targetMax = new BigDecimal(parts[3].trim());
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number format in RangeProcessor config", e);
+            this.min = Double.parseDouble(parts[0]);
+            this.max = Double.parseDouble(parts[1]);
+            this.targetMin = Double.parseDouble(parts[2]);
+            this.targetMax = Double.parseDouble(parts[3]);
+
+            if (this.max <= this.min || this.targetMax <= this.targetMin) {
+                logger.logInvalidConfig("RangeProcessor", config, "0,100,0,1");
+                throw new IllegalArgumentException("范围的最大值必须大于最小值");
+            }
+
+            logger.logProcessorInit("RangeProcessor",
+                    String.format("输入范围: [%f, %f], 输出范围: [%f, %f]", min, max, targetMin, targetMax));
+        } catch (Exception e) {
+            logger.logInvalidConfig("RangeProcessor", config, "0,100,0,1");
+            throw new IllegalArgumentException("无效的范围配置: " + e.getMessage());
         }
-        logger.debug("RangeProcessor initialized with range [{},{}] -> [{},{}]", min, max, targetMin, targetMax);
     }
 
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        if (value instanceof Number) {
-            BigDecimal input = new BigDecimal(value.toString());
-            // 如果输入值超出范围，返回null
-            if (input.compareTo(min) < 0 || input.compareTo(max) > 0) {
-                return null;
+
+        try {
+            double inputValue;
+            if (value instanceof Number) {
+                inputValue = ((Number) value).doubleValue();
+            } else if (value instanceof String) {
+                inputValue = Double.parseDouble((String) value);
+            } else {
+                logger.logProcessFailure("RangeProcessor", value,
+                        "不支持的数据类型: " + value.getClass().getName());
+                return value;
             }
-            // 线性映射
-            BigDecimal ratio = input.subtract(min).divide(max.subtract(min), 10, RoundingMode.HALF_UP);
-            return targetMin.add(ratio.multiply(targetMax.subtract(targetMin)));
+
+            // 检查输入值是否在范围内
+            if (inputValue < min || inputValue > max) {
+                logger.logProcessFailure("RangeProcessor", value,
+                        String.format("输入值 %f 超出范围 [%f, %f]", inputValue, min, max));
+                return value;
+            }
+
+            // 执行范围映射
+            double percentage = (inputValue - min) / (max - min);
+            double result = targetMin + percentage * (targetMax - targetMin);
+
+            logger.logProcessSuccess("RangeProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("RangeProcessor", value, e.getMessage());
+            return value;
         }
-        return value;
     }
 } 

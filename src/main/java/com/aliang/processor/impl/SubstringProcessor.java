@@ -1,10 +1,9 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import org.slf4j.*;
-
-import java.util.*;
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
+import com.aliang.processor.*;
+import com.aliang.utils.*;
 
 /**
  * 字符串截取处理器
@@ -59,43 +58,72 @@ import java.util.*;
  * 5. 会自动处理越界情况，确保安全运行
  */
 public class SubstringProcessor implements ValueProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(SubstringProcessor.class);
     private final int start;
     private final int end;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public SubstringProcessor(String config) {
         if (config == null || config.isEmpty()) {
-            throw new IllegalArgumentException("SubstringProcessor requires config in format: start,end");
+            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
+            throw new IllegalArgumentException("截取处理器配置不能为空");
         }
+
         String[] parts = config.split(",");
         if (parts.length != 2) {
-            throw new IllegalArgumentException("SubstringProcessor config must have 2 parts: start,end");
+            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
+            throw new IllegalArgumentException("截取处理器配置格式错误，应为: start,end");
         }
+
         try {
-            this.start = Integer.parseInt(parts[0].trim());
-            this.end = Integer.parseInt(parts[1].trim());
-            if (start < 0 || end < 0 || start > end) {
-                throw new IllegalArgumentException("Invalid range: start must be >= 0 and <= end");
+            this.start = Integer.parseInt(parts[0]);
+            this.end = Integer.parseInt(parts[1]);
+
+            if (start < 0 || end < start) {
+                logger.logInvalidConfig("SubstringProcessor", config, "0,10");
+                throw new IllegalArgumentException("无效的截取范围: 起始位置不能小于0，结束位置不能小于起始位置");
             }
+
+            logger.logProcessorInit("SubstringProcessor",
+                    String.format("截取范围: [%d, %d]", start, end));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number format in SubstringProcessor config", e);
+            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
+            throw new IllegalArgumentException("无效的截取范围配置: " + e.getMessage());
         }
-        logger.debug("SubstringProcessor initialized with range [{},{}]", start, end);
     }
 
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        if (value instanceof String) {
-            String str = (String) value;
-            if (start >= str.length()) {
-                return "";
+
+        // 如果是集合或 Map，递归处理其内部元素
+        if (value instanceof java.util.Collection<?> || value instanceof java.util.Map<?, ?>) {
+            return ProcessorUtils.processCollection(value, this);
+        }
+
+        try {
+            String strValue;
+            if (value instanceof String) {
+                strValue = (String) value;
+            } else {
+                strValue = String.valueOf(value);
             }
-            int actualEnd = Math.min(end, str.length());
-            return str.substring(start, actualEnd);
+
+            if (strValue.length() < start) {
+                logger.logProcessFailure("SubstringProcessor", value,
+                        String.format("字符串长度(%d)小于起始位置(%d)", strValue.length(), start));
+                return value;
+            }
+
+            int actualEnd = Math.min(end, strValue.length());
+            String result = strValue.substring(start, actualEnd);
+
+            logger.logProcessSuccess("SubstringProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("SubstringProcessor", value, e.getMessage());
+            return value;
         }
-        return value;
     }
 } 

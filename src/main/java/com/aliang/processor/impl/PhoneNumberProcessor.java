@@ -1,5 +1,7 @@
 package com.aliang.processor.impl;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.processor.*;
 import com.aliang.utils.*;
 
@@ -63,43 +65,100 @@ public class PhoneNumberProcessor implements ValueProcessor {
     private static final String DASH_FORMAT = "dash";
     private static final String SPACE_FORMAT = "space";
 
+    private final String format;
+    private final boolean mask;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
+    public PhoneNumberProcessor() {
+        this.format = DEFAULT_FORMAT;
+        this.mask = false;
+        logger.logProcessorInit("PhoneNumberProcessor", "使用默认配置: format=" + format + ", mask=" + mask);
+    }
+
+    public PhoneNumberProcessor(String config) {
+        String tempFormat = DEFAULT_FORMAT;
+        boolean tempMask = false;
+
+        if (config != null && !config.isEmpty()) {
+            String[] parts = config.split(",");
+            if (parts.length > 0) {
+                tempFormat = parts[0].trim().toLowerCase();
+            }
+            if (parts.length > 1) {
+                tempMask = Boolean.parseBoolean(parts[1].trim());
+            }
+        }
+
+        this.format = tempFormat;
+        this.mask = tempMask;
+        logger.logProcessorInit("PhoneNumberProcessor",
+                String.format("配置: format=%s, mask=%s", format, mask));
+    }
+
     @Override
     public Object doProcess(Object value) {
         if (value == null) {
             return null;
         }
 
-        if (value instanceof Collection || value.getClass().isArray()) {
+        if (value instanceof List<?> || value instanceof Map<?, ?>) {
             return ProcessorUtils.processCollection(value, this::doProcess);
         }
 
-        String phone = value.toString().replaceAll("[^+\\d]", "");
+        try {
+            String phoneNumber = value.toString().replaceAll("[^0-9+]", "");
 
-        // 验证手机号
-        if (!isValidPhoneNumber(phone)) {
-            return null;
+            // 验证手机号格式
+            if (!isValidPhoneNumber(phoneNumber)) {
+                logger.logProcessFailure("PhoneNumberProcessor", value, "无效的手机号格式");
+                return value;
+            }
+
+            String formatted = formatPhoneNumber(phoneNumber);
+            logger.logProcessSuccess("PhoneNumberProcessor", value, formatted);
+            return formatted;
+        } catch (Exception e) {
+            logger.logProcessFailure("PhoneNumberProcessor", value, e.getMessage());
+            return value;
         }
-
-        // 处理国际前缀
-        String prefix = "";
-        if (phone.startsWith("+86")) {
-            prefix = "+86 ";
-            phone = phone.substring(3);
-        }
-
-        // 分割手机号
-        String section1 = phone.substring(0, 3);
-        String section2 = phone.substring(3, 7);
-        String section3 = phone.substring(7);
-
-        // 默认使用空格分隔
-        return prefix + section1 + " " + section2 + " " + section3;
     }
 
-    private boolean isValidPhoneNumber(String phone) {
-        if (phone.startsWith("+86")) {
-            phone = phone.substring(3);
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        // 简单的手机号验证：11位数字，或带+86前缀的13位数字
+        return phoneNumber.matches("^\\d{11}$") ||
+                phoneNumber.matches("^\\+86\\d{11}$");
+    }
+
+    private String formatPhoneNumber(String phoneNumber) {
+        // 去除可能存在的+86前缀
+        String number = phoneNumber.replaceAll("^\\+86", "");
+
+        // 如果需要掩码处理
+        if (mask) {
+            number = number.substring(0, 3) + "****" + number.substring(7);
         }
-        return phone.matches("^1\\d{10}$");
+
+        // 根据格式要求处理
+        switch (format) {
+            case DASH_FORMAT:
+                return formatWithSeparator(number, "-");
+            case SPACE_FORMAT:
+                return formatWithSeparator(number, " ");
+            default: // DEFAULT_FORMAT
+                return formatWithSeparator(number, " ");
+        }
+    }
+
+    private String formatWithSeparator(String number, String separator) {
+        if (number.length() != 11) {
+            return number;
+        }
+        return String.format("%s%s%s%s%s",
+                number.substring(0, 3),
+                separator,
+                number.substring(3, 7),
+                separator,
+                number.substring(7)
+        );
     }
 } 

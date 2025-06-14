@@ -1,8 +1,14 @@
 package com.aliang.utils;
 
+import com.aliang.processor.*;
+
 import java.util.*;
 import java.util.function.*;
 
+/**
+ * 处理器工具类
+ * 提供处理集合类型的通用方法
+ */
 public class ProcessorUtils {
 
     // 处理 List，支持嵌套结构
@@ -41,14 +47,35 @@ public class ProcessorUtils {
         return result;
     }
 
-    // 统一处理集合类型（List 或 Map）
-    public static Object processCollection(Object value, Function<Object, Object> processor) {
-        if (value instanceof List<?>) {
-            return processList((List<?>) value, processor);
-        } else if (value instanceof Map<?, ?>) {
-            return processMap((Map<?, ?>) value, processor);
+    /**
+     * 处理集合类型的值
+     * 如果值是List或Map类型，递归处理其中的每个元素
+     *
+     * @param value     要处理的值
+     * @param processor 处理器
+     * @return 处理后的值
+     */
+    public static Object processCollection(Object value, ValueProcessor processor) {
+        if (value == null) {
+            return null;
         }
-        return value;
+
+        if (value instanceof List<?>) {
+            List<?> list = (List<?>) value;
+            List<Object> result = new ArrayList<>();
+            for (Object item : list) {
+                result.add(processor.doProcess(item));
+            }
+            return result;
+        } else if (value instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) value;
+            Map<Object, Object> result = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                result.put(entry.getKey(), processor.doProcess(entry.getValue()));
+            }
+            return result;
+        }
+        return processor.doProcess(value);
     }
 }
 

@@ -11,22 +11,31 @@ import java.util.stream.*;
  * <p>
  * 示例：
  * 输入：["电子产品", "手机", "智能设备"]
- * 输出："电子产品,手机,智能设备"
+ * 输出：
+ * - keepArrayFormat=false时："电子产品,手机,智能设备"
+ * - keepArrayFormat=true时："[电子产品, 手机, 智能设备]"
  * <p>
  * 特点：
  * 1. 所有元素都会被转换为字符串
  * 2. 默认使用逗号作为分隔符
  * 3. 空值或空集合返回null
+ * 4. 可以配置是否保持数组格式
  */
 public class JoinAggregationStrategy implements AggregationStrategy {
     private final String delimiter;
+    private final boolean keepArrayFormat;
 
     public JoinAggregationStrategy() {
-        this(",");
+        this(",", false);
     }
 
     public JoinAggregationStrategy(String delimiter) {
+        this(delimiter, false);
+    }
+
+    public JoinAggregationStrategy(String delimiter, boolean keepArrayFormat) {
         this.delimiter = delimiter;
+        this.keepArrayFormat = keepArrayFormat;
     }
 
     @Override
@@ -34,8 +43,11 @@ public class JoinAggregationStrategy implements AggregationStrategy {
         if (values == null || values.isEmpty()) {
             return null;
         }
-        return values.stream()
+
+        String result = values.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(delimiter));
+
+        return keepArrayFormat ? "[" + result + "]" : result;
     }
 } 

@@ -1,7 +1,8 @@
 package com.aliang.processor.impl;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.processor.*;
-import com.aliang.utils.*;
 
 import java.util.*;
 
@@ -61,16 +62,42 @@ import java.util.*;
  */
 public class PrefixProcessor implements ValueProcessor {
     private final String prefix;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public PrefixProcessor(String prefix) {
-        this.prefix = prefix;
+        this.prefix = prefix != null ? prefix : "";
+        logger.logProcessorInit("PrefixProcessor", "前缀: " + this.prefix);
     }
 
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        return prefix + value.toString();
+
+        if (value instanceof List<?>) {
+            List<?> list = (List<?>) value;
+            List<Object> result = new ArrayList<>();
+            for (Object item : list) {
+                result.add(doProcess(item));
+            }
+            return result;
+        } else if (value instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) value;
+            Map<Object, Object> result = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                result.put(entry.getKey(), doProcess(entry.getValue()));
+            }
+            return result;
+        }
+
+        try {
+            String result = prefix + value.toString();
+            logger.logProcessSuccess("PrefixProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("PrefixProcessor", value, e.getMessage());
+            return value;
+        }
     }
 }

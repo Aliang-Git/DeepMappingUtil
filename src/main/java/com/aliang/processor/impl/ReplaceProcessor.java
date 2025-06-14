@@ -1,10 +1,8 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import org.slf4j.*;
-
-import java.util.*;
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
+import com.aliang.processor.*;
 
 /**
  * 字符串替换处理器
@@ -61,31 +59,53 @@ import java.util.*;
  * 5. 目标字符串和替换字符串都不能为null
  */
 public class ReplaceProcessor implements ValueProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(ReplaceProcessor.class);
     private final String target;
     private final String replacement;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public ReplaceProcessor(String config) {
         if (config == null || config.isEmpty()) {
-            throw new IllegalArgumentException("ReplaceProcessor requires config in format: target,replacement");
+            logger.logInvalidConfig("ReplaceProcessor", config, "oldValue,newValue");
+            throw new IllegalArgumentException("替换处理器配置不能为空");
         }
-        String[] parts = config.split(",", 2);
+
+        String[] parts = config.split(",");
         if (parts.length != 2) {
-            throw new IllegalArgumentException("ReplaceProcessor config must have 2 parts: target,replacement");
+            logger.logInvalidConfig("ReplaceProcessor", config, "oldValue,newValue");
+            throw new IllegalArgumentException("替换处理器配置格式错误，应为: oldValue,newValue");
         }
-        this.target = parts[0].trim();
-        this.replacement = parts[1].trim();
-        logger.debug("ReplaceProcessor initialized with target '{}' and replacement '{}'", target, replacement);
+
+        this.target = parts[0];
+        this.replacement = parts[1];
+        logger.logProcessorInit("ReplaceProcessor",
+                String.format("目标文本: '%s', 替换为: '%s'", target, replacement));
     }
 
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        if (value instanceof String) {
-            return ((String) value).replace(target, replacement);
+
+        try {
+            String strValue;
+            if (value instanceof String) {
+                strValue = (String) value;
+            } else {
+                strValue = String.valueOf(value);
+            }
+
+            String result = strValue.replace(target, replacement);
+            if (result.equals(strValue)) {
+                logger.logProcessSuccess("ReplaceProcessor", value, result);
+                return value; // 如果没有发生替换，返回原值
+            }
+
+            logger.logProcessSuccess("ReplaceProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("ReplaceProcessor", value, e.getMessage());
+            return value;
         }
-        return value;
     }
 } 

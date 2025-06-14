@@ -1,9 +1,9 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import java.util.List;
-import java.util.Map;
+import com.aliang.processor.*;
+import com.aliang.utils.*;
+
+import java.util.*;
 
 /**
  * 格式化处理器
@@ -51,6 +51,21 @@ public class FormatProcessor implements ValueProcessor {
         if (value == null) {
             return null;
         }
-        return String.format(format, value);
+
+        Object param = value;
+        if (value instanceof java.math.BigDecimal) {
+            java.math.BigDecimal bd = (java.math.BigDecimal) value;
+            if (format.contains("%d")) {
+                param = bd.intValue();
+            } else if (format.contains("%f")) {
+                param = bd.doubleValue();
+            }
+        }
+        try {
+            return String.format(format, param);
+        } catch (Exception e) {
+            // 回退为 value.toString()
+            return String.format(format, value.toString());
+        }
     }
 } 

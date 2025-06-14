@@ -1,43 +1,44 @@
 package com.aliang.processor.impl;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.processor.*;
 import com.aliang.utils.*;
-import org.slf4j.*;
 
 import java.math.*;
 import java.util.*;
 
 /**
- * 乘以10处理器
- * 将数值乘以10
- * 
- * 配置格式：multiplyByTen
- * 不需要额外参数
- * 
- * 示例1 - 整数处理：
- * 配置：multiplyByTen
+ * 乘法处理器
+ * 将数值乘以指定的倍数
+ *
+ * 配置格式：multiplyByTen:倍数
+ * 倍数可以是任意正数，支持小数
+ *
+ * 示例1 - 整数倍数：
+ * 配置：multiplyByTen:10
  * 输入：5
  * 输出：50
- * 
- * 示例2 - 小数处理：
- * 配置：multiplyByTen
- * 输入：3.14
- * 输出：31.4
+ *
+ * 示例2 - 小数倍数：
+ * 配置：multiplyByTen:0.8
+ * 输入：100
+ * 输出：80
  * 
  * 示例3 - 负数处理：
- * 配置：multiplyByTen
+ * 配置：multiplyByTen:2
  * 输入：-7
- * 输出：-70
+ * 输出：-14
  * 
  * 示例4 - 字符串数字：
- * 配置：multiplyByTen
- * 输入："12.5"
- * 输出：125.0
+ * 配置：multiplyByTen:1.5
+ * 输入："12"
+ * 输出：18.0
  * 
  * 示例5 - 批量处理（数组）：
- * 配置：multiplyByTen
+ * 配置：multiplyByTen:3
  * 输入：[1, 2, 3]
- * 输出：[10, 20, 30]
+ * 输出：[3, 6, 9]
  * 
  * 特殊情况处理：
  * 1. 零值：
@@ -60,31 +61,63 @@ import java.util.*;
  * 5. 超出数值范围的结果将返回null
  */
 public class MultiplyByTenProcessor implements ValueProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(MultiplyByTenProcessor.class);
+    private static final BigDecimal DEFAULT_MULTIPLIER = BigDecimal.valueOf(10);
     private final BigDecimal multiplier;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
+    public MultiplyByTenProcessor() {
+        this.multiplier = DEFAULT_MULTIPLIER;
+        logger.logProcessorInit("MultiplyByTenProcessor", "使用默认倍数: " + DEFAULT_MULTIPLIER);
+    }
 
     public MultiplyByTenProcessor(String config) {
-        BigDecimal tempMultiplier = BigDecimal.TEN;
-        if (config != null && !config.isEmpty()) {
-            try {
-                tempMultiplier = new BigDecimal(config);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid multiplier config: {}, using default value 10", config);
+        BigDecimal configMultiplier;
+        try {
+            configMultiplier = config != null && !config.isEmpty() ?
+                    new BigDecimal(config) : DEFAULT_MULTIPLIER;
+            if (configMultiplier.compareTo(BigDecimal.ZERO) <= 0) {
+                logger.logInvalidConfig("MultiplyByTenProcessor", config, DEFAULT_MULTIPLIER.toString());
+                configMultiplier = DEFAULT_MULTIPLIER;
             }
+        } catch (NumberFormatException e) {
+            logger.logInvalidConfig("MultiplyByTenProcessor", config, DEFAULT_MULTIPLIER.toString());
+            configMultiplier = DEFAULT_MULTIPLIER;
         }
-        this.multiplier = tempMultiplier;
-        logger.debug("MultiplyByTenProcessor initialized with multiplier: {}", multiplier);
+        this.multiplier = configMultiplier;
+        logger.logProcessorInit("MultiplyByTenProcessor", "倍数: " + this.multiplier);
     }
 
     @Override
     public Object doProcess(Object value) {
+        if (value == null) {
+            return null;
+        }
+
         if (value instanceof List<?> || value instanceof Map<?, ?>) {
             return ProcessorUtils.processCollection(value, this::doProcess);
         }
-        if (value instanceof Number) {
-            BigDecimal bd = new BigDecimal(value.toString());
-            return bd.multiply(multiplier);
+
+        try {
+            BigDecimal decimal;
+            if (value instanceof BigDecimal) {
+                decimal = (BigDecimal) value;
+            } else if (value instanceof Number) {
+                decimal = BigDecimal.valueOf(((Number) value).doubleValue());
+            } else if (value instanceof String) {
+                decimal = new BigDecimal((String) value);
+            } else {
+                logger.logProcessFailure("MultiplyByTenProcessor", value,
+                        "不支持的数据类型: " + value.getClass().getName());
+                return value;
+            }
+
+            BigDecimal result = decimal.multiply(multiplier)
+                    .setScale(8, RoundingMode.HALF_UP);
+            logger.logProcessSuccess("MultiplyByTenProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("MultiplyByTenProcessor", value, e.getMessage());
+            return value;
         }
-        return value;
     }
 }

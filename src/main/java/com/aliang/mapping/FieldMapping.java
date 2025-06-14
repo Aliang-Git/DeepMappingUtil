@@ -1,7 +1,7 @@
 package com.aliang.mapping;
 
 import com.aliang.logger.*;
-import com.aliang.logger.imple.*;
+import com.aliang.logger.impl.*;
 import com.aliang.processor.*;
 import com.aliang.strategy.*;
 import com.alibaba.fastjson.*;
@@ -78,7 +78,7 @@ public class FieldMapping {
     /**
      * 日志记录器
      */
-    private final MappingLogger logger = new Slf4jMappingLogger();
+    private final FieldMappingLogger logger = new DefaultFieldMappingLogger();
 
     /**
      * 构造函数
@@ -128,6 +128,29 @@ public class FieldMapping {
     }
 
     /**
+     * 从源数据中获取字段值
+     *
+     * @param source 源数据
+     * @param sourcePath 源字段路径
+     * @return 字段值
+     */
+    private Object evaluateSourcePath(JSONObject source, String sourcePath) {
+        try {
+            Object value = JSONPath.eval(source, sourcePath);
+            if (value == null) {
+                logger.logInvalidValue(sourcePath, targetPath, null, "源字段不存在");
+                invalidFields.add(sourcePath);
+                return null;
+            }
+            return value;
+        } catch (Exception e) {
+            logger.logInvalidValue(sourcePath, targetPath, null, "获取源字段值失败: " + e.getMessage());
+            invalidFields.add(sourcePath);
+            return null;
+        }
+    }
+
+    /**
      * 执行字段映射操作
      * 
      * 该方法会按照以下步骤执行映射：
@@ -141,110 +164,56 @@ public class FieldMapping {
      * @param target 目标数据
      * @return 处理后的目标数据
      */
-    public JSONObject apply(JSONObject source, JSONObject target) {
-        try {
-            // 检查字段是否存在
-            Object value = JSONPath.eval(source, sourcePath);
-            if (value == null) {
-                String message = String.format("字段映射跳过：源路径=%s 不存在，目标路径=%s", sourcePath, targetPath);
-                logger.warn(message);
-                invalidFields.add(sourcePath);
-                return target;
-            }
+    public void apply(JSONObject source, JSONObject target) {
+        // 获取源值
+        Object value = evaluateSourcePath(source, sourcePath);
+        logger.logMappingSuccess(sourcePath, targetPath, "Initial value: " + value);
+        if (value == null) {
+            return;
+        }
 
-            // 检查数组是否为空
-            if (value instanceof List && ((List<?>) value).isEmpty()) {
-                String message = String.format("字段映射跳过：源路径=%s 为空数组，目标路径=%s", sourcePath, targetPath);
-                logger.warn(message);
-                invalidFields.add(sourcePath);
-                return target;
-            }
-
-            // 检查字段值是否有效
-            if (value instanceof List) {
-                List<?> list = (List<?>) value;
-                boolean hasValidValue = false;
-                for (Object item : list) {
-                    if (item != null) {
-                        hasValidValue = true;
-                        break;
+        // 应用聚合策略
+        if (!aggregationStrategies.isEmpty() && value instanceof List) {
+            for (AggregationStrategy strategy : aggregationStrategies) {
+                try {
+                    Object oldValue = value;
+                    value = strategy.apply((List<?>) value);
+                    logger.logMappingSuccess(sourcePath, targetPath, "After aggregation: " + value);
+                    if (value == null) {
+                        logger.logStrategyFailure(sourcePath, targetPath,
+                                strategy.getClass().getSimpleName(), oldValue, "聚合结果为null");
+                        continue;
                     }
-                }
-                if (!hasValidValue) {
-                    String message = String.format("字段映射跳过：源路径=%s 包含无效值，目标路径=%s", sourcePath, targetPath);
-                    logger.warn(message);
-                    invalidFields.add(sourcePath);
-                    return target;
+                } catch (Exception e) {
+                    logger.logStrategyFailure(sourcePath, targetPath,
+                            strategy.getClass().getSimpleName(), value, e.getMessage());
+                    continue;
                 }
             }
+        }
 
-            // 先执行聚合策略
-            if (!aggregationStrategies.isEmpty() && value instanceof List) {
-                for (AggregationStrategy strategy : aggregationStrategies) {
-                    try {
-                        value = strategy.apply((List<?>) value);
-                        logger.debug("聚合策略 {} 执行完成，结果：{}", strategy.getClass().getSimpleName(), value);
-                    } catch (Exception e) {
-                        String message = String.format("聚合策略执行失败：策略=%s，源路径=%s，目标路径=%s，错误=%s", 
-                            strategy.getClass().getSimpleName(), sourcePath, targetPath, e.getMessage());
-                        logger.error(message);
-                        invalidFields.add(sourcePath);
-                        return target;
-                    }
-                }
-            }
-
-            // 再执行处理器链
-            boolean processorSuccess = true;
+        // 应用处理器
+        if (!processors.isEmpty()) {
             for (ValueProcessor processor : processors) {
                 try {
-                    value = processor.process(value, productCode, sourcePath);
-                    logger.debug("处理器 {} 执行完成，结果：{}", processor.getClass().getSimpleName(), value);
+                    Object oldValue = value;
+                    value = processor.doProcess(value);
+                    logger.logMappingSuccess(sourcePath, targetPath, value);
                 } catch (Exception e) {
-                    String message = String.format("处理器执行失败：处理器=%s，源路径=%s，目标路径=%s，错误=%s", 
-                        processor.getClass().getSimpleName(), sourcePath, targetPath, e.getMessage());
-                    logger.error(message);
-                    processorSuccess = false;
-                    invalidFields.add(sourcePath);
-                    return target;
+                    logger.logProcessorFailure(sourcePath, targetPath,
+                            processor.getClass().getSimpleName(), value, e.getMessage());
                 }
             }
+        }
 
-            // 如果处理器执行失败，标记字段为无效
-            if (!processorSuccess) {
-                invalidFields.add(sourcePath);
-                return target;
-            }
-
-            // 如果结果是单元素列表，提取出单个值
-            if (value instanceof List && ((List<?>) value).size() == 1) {
-                value = ((List<?>) value).get(0);
-            }
-
-            // 如果目标路径是数组中的元素，确保值是单个值而不是数组
-            if (targetPath.contains("[") && value instanceof List) {
-                if (((List<?>) value).size() == 1) {
-                    value = ((List<?>) value).get(0);
-                }
-            }
-
-            // 设置到目标数据中
+        // 设置目标值
+        if (value != null) {
             try {
                 JSONPath.set(target, targetPath, value);
-                logger.debug("字段映射成功：源路径={}，目标路径={}，值={}", sourcePath, targetPath, value);
+                logger.logMappingSuccess(sourcePath, targetPath, value);
             } catch (Exception e) {
-                String message = String.format("设置目标字段失败：源路径=%s，目标路径=%s，错误=%s", 
-                    sourcePath, targetPath, e.getMessage());
-                logger.error(message);
-                invalidFields.add(sourcePath);
+                logger.logMappingFailure(sourcePath, targetPath, value, e.getMessage());
             }
-            return target;
-        } catch (Exception e) {
-            String message = String.format("字段映射执行失败：源路径=%s，目标路径=%s，错误=%s", 
-                sourcePath, targetPath, e.getMessage());
-            logger.error(message);
-            invalidFields.add(sourcePath);
-            return target;
         }
     }
 

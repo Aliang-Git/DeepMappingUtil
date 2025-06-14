@@ -1,12 +1,9 @@
 package com.aliang.test;
 
-import com.aliang.service.ProductMappingService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.aliang.service.*;
+import com.alibaba.fastjson.*;
+import org.junit.*;
+import org.slf4j.*;
 
 import static org.junit.Assert.*;
 
@@ -72,7 +69,7 @@ public class ComplexProductMappingTest {
                         "    {\n" +
                         "      \"sourcePath\": \"$.inventory.locations\",\n" +
                         "      \"targetPath\": \"$.stockLocations\",\n" +
-                        "      \"aggregationStrategies\": [\"join\"],\n" +
+                            "      \"aggregationStrategies\": [\"join:keepArrayFormat=true\"],\n" +
                         "      \"processors\": [\"prefix:仓库-\"]\n" +
                         "    },\n" +
                         "    {\n" +
@@ -93,7 +90,8 @@ public class ComplexProductMappingTest {
                         "    {\n" +
                         "      \"sourcePath\": \"$.ratings.distribution\",\n" +
                         "      \"targetPath\": \"$.ratingDistribution\",\n" +
-                        "      \"aggregationStrategies\": [\"sum\"]\n" +
+                            "      \"aggregationStrategies\": [\"sum\"],\n" +
+                            "      \"processors\": [\"tointeger\"]\n" +
                         "    },\n" +
                         "    {\n" +
                         "      \"sourcePath\": \"$.attributes.color\",\n" +
@@ -219,7 +217,7 @@ public class ComplexProductMappingTest {
         assertEquals("800.45424000", result.getString("price"));
         assertEquals("13%", result.getString("taxRate"));
         assertEquals("库存数量：1000", result.getString("totalStock"));
-        assertEquals("仓库-A区,B区,C区", result.getString("stockLocations"));
+        assertEquals("[仓库-A区, 仓库-B区, 仓库-C区]", result.getString("stockLocations"));
         assertEquals("¥50000.12", result.getString("totalSales"));
         assertEquals("1000.00", result.getString("avgPrice"));
         assertEquals("4.50星", result.getString("rating"));
@@ -228,7 +226,7 @@ public class ComplexProductMappingTest {
         assertEquals("L", result.getString("size"));
         assertEquals("2.50kg", result.getString("weight"));
         assertEquals("在售", result.getString("productStatus"));
-        assertEquals("#热销,新品,促销", result.getString("productTags"));
+        assertEquals("#热销,#新品,#促销", result.getString("productTags"));
         assertEquals("这是一个测试商品描述...", result.getString("productDesc"));
         assertEquals("长100.50cm", result.getString("dimensions"));
         System.out.println("最终结果："+result);

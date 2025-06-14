@@ -1,9 +1,8 @@
 package com.aliang.processor.impl;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.processor.*;
-import com.aliang.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -60,36 +59,65 @@ import java.util.*;
  * 4. 自定义文本时，true值和false值用逗号分隔
  */
 public class BooleanToYesNoProcessor implements ValueProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(BooleanToYesNoProcessor.class);
     private final Map<Boolean, String> booleanMap;
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
+    public BooleanToYesNoProcessor() {
+        this.booleanMap = new HashMap<>();
+        this.booleanMap.put(true, "是");
+        this.booleanMap.put(false, "否");
+        logger.logProcessorInit("BooleanToYesNoProcessor", "使用默认映射: true->是, false->否");
+    }
 
     public BooleanToYesNoProcessor(String config) {
         this.booleanMap = new HashMap<>();
         if (config != null && !config.isEmpty()) {
-            String[] mappings = config.split(";");
-            for (String mapping : mappings) {
-                String[] parts = mapping.split("=");
-                if (parts.length == 2) {
-                    booleanMap.put(Boolean.parseBoolean(parts[0].trim()), parts[1].trim());
-                }
+            String[] parts = config.split(",");
+            if (parts.length == 2) {
+                this.booleanMap.put(true, parts[0]);
+                this.booleanMap.put(false, parts[1]);
+                logger.logProcessorInit("BooleanToYesNoProcessor",
+                        String.format("使用自定义映射: true->%s, false->%s", parts[0], parts[1]));
+            } else {
+                logger.logInvalidConfig("BooleanToYesNoProcessor", config, "是,否");
+                this.booleanMap.put(true, "是");
+                this.booleanMap.put(false, "否");
             }
+        } else {
+            this.booleanMap.put(true, "是");
+            this.booleanMap.put(false, "否");
+            logger.logProcessorInit("BooleanToYesNoProcessor", "使用默认映射: true->是, false->否");
         }
-        // 设置默认值
-        if (booleanMap.isEmpty()) {
-            booleanMap.put(true, "是");
-            booleanMap.put(false, "否");
-        }
-        logger.debug("BooleanToYesNoProcessor initialized with mappings: {}", booleanMap);
     }
 
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        if (value instanceof Boolean) {
-            return booleanMap.getOrDefault(value, value.toString());
+
+        try {
+            boolean boolValue;
+            if (value instanceof Boolean) {
+                boolValue = (Boolean) value;
+            } else if (value instanceof String) {
+                String strValue = ((String) value).toLowerCase();
+                boolValue = strValue.equals("true") || strValue.equals("1") ||
+                        strValue.equals("yes") || strValue.equals("y");
+            } else if (value instanceof Number) {
+                boolValue = ((Number) value).intValue() != 0;
+            } else {
+                logger.logProcessFailure("BooleanToYesNoProcessor", value,
+                        "不支持的数据类型: " + value.getClass().getName());
+                return value;
+            }
+
+            String result = booleanMap.get(boolValue);
+            logger.logProcessSuccess("BooleanToYesNoProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("BooleanToYesNoProcessor", value, e.getMessage());
+            return value;
         }
-        return value;
     }
 }

@@ -1,9 +1,10 @@
 package com.aliang.processor.impl;
 
-import com.aliang.processor.ValueProcessor;
-import com.aliang.utils.ProcessorUtils;
-import java.util.List;
-import java.util.Map;
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
+import com.aliang.processor.*;
+
+import java.util.*;
 
 /**
  * 大写转换处理器
@@ -58,11 +59,41 @@ import java.util.Map;
  * 5. 不会改变字符串的长度和空白字符
  */
 public class UppercaseProcessor implements ValueProcessor {
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
+    public UppercaseProcessor() {
+        logger.logProcessorInit("UppercaseProcessor", null);
+    }
+
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        return value instanceof String ? ((String) value).toUpperCase() : value;
+
+        if (value instanceof List<?>) {
+            List<?> list = (List<?>) value;
+            List<Object> result = new ArrayList<>();
+            for (Object item : list) {
+                result.add(doProcess(item));
+            }
+            return result;
+        } else if (value instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) value;
+            Map<Object, Object> result = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                result.put(entry.getKey(), doProcess(entry.getValue()));
+            }
+            return result;
+        }
+
+        try {
+            String result = value.toString().toUpperCase();
+            logger.logProcessSuccess("UppercaseProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("UppercaseProcessor", value, e.getMessage());
+            return value;
+        }
     }
 }

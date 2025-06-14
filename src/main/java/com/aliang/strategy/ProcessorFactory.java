@@ -1,4 +1,4 @@
-package com.aliang.factory;
+package com.aliang.strategy;
 
 import com.aliang.logger.*;
 import com.aliang.logger.impl.*;
@@ -24,7 +24,7 @@ public class ProcessorFactory {
                 String[] parts = processorName.split(":", 2);
                 String name = parts[0].toLowerCase();
                 String params = parts.length > 1 ? parts[1] : null;
-                
+
                 ValueProcessor processor = createProcessor(name, params);
                 if (processor != null) {
                     processors.add(processor);
@@ -52,20 +52,6 @@ public class ProcessorFactory {
                 case "lowercase":
                     logger.logProcessorInit("LowercaseProcessor", params);
                     return new LowercaseProcessor();
-                case "prefix":
-                    if (params == null) {
-                        logger.logProcessorParamError("PrefixProcessor", "前缀处理器需要前缀参数");
-                        return null;
-                    }
-                    logger.logProcessorInit("PrefixProcessor", params);
-                    return new PrefixProcessor(params);
-                case "suffix":
-                    if (params == null) {
-                        logger.logProcessorParamError("SuffixProcessor", "后缀处理器需要后缀参数");
-                        return null;
-                    }
-                    logger.logProcessorInit("SuffixProcessor", params);
-                    return new SuffixProcessor(params);
                 case "multiplybyten":
                     logger.logProcessorInit("MultiplyByTenProcessor", params);
                     return new MultiplyByTenProcessor(params);
@@ -88,6 +74,12 @@ public class ProcessorFactory {
                         logger.logProcessorParamError("DiscountProcessor", "折扣率参数必须是有效的数字: " + params);
                         return null;
                     }
+                case "prefix":
+                    logger.logProcessorInit("PrefixProcessor", params);
+                    return new PrefixProcessor(params);
+                case "suffix":
+                    logger.logProcessorInit("SuffixProcessor", params);
+                    return new SuffixProcessor(params);
                 case "mapvalue":
                     logger.logProcessorInit("MapValueProcessor", params);
                     return new MapValueProcessor(getStringStringMap(params));
@@ -121,12 +113,6 @@ public class ProcessorFactory {
                 case "tointeger":
                     logger.logProcessorInit("ToIntegerProcessor", params);
                     return new ToIntegerProcessor();
-                case "money":
-                    logger.logProcessorInit("MoneyProcessor", params);
-                    return new MoneyProcessor();
-                case "phone":
-                    logger.logProcessorInit("PhoneNumberProcessor", params);
-                    return new PhoneNumberProcessor();
                 default:
                     logger.logProcessorParamError(name, "未知的处理器类型");
                     return null;
