@@ -7,8 +7,7 @@ import com.aliang.registry.*;
 import com.aliang.rule.*;
 import com.aliang.strategy.*;
 import com.alibaba.fastjson.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 import java.util.*;
 

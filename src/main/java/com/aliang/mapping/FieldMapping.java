@@ -34,7 +34,7 @@ import java.util.*;
  * 
  * // 添加聚合策略
  * mapping.addAggregationStrategies(
- *     DefaultAggregationStrategies.SUM  // 求和
+ *     DefaultAggregationStrategies.getStrategy("SUM")  // 求和
  * );
  * 
  * // 执行映射
