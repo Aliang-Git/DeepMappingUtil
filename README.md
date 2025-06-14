@@ -17,7 +17,7 @@
 
 ```json
 {
-  "productCode": "DEMO001",
+   "code": "DEMO001",
   "mappings": [
     {
       "sourcePath": "$.source.field",
@@ -103,7 +103,9 @@
 {
   "sourcePath": "$.amount",
   "targetPath": "$.amountInCents",
-  "processors": ["multiplyByTen:100"]
+   "processors": [
+      "multiplybyten:100"
+   ]
 }
 ```
 
@@ -233,7 +235,10 @@
 {
   "sourcePath": "$.items[*].price",
   "targetPath": "$.summary",
-  "processors": ["multiplyByTen:100", "format:￥%.2f"],
+   "processors": [
+      "multiplybyten:100",
+      "format:￥%.2f"
+   ],
   "aggregationStrategies": ["sum"]
 }
 ```
