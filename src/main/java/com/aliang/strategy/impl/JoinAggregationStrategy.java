@@ -25,13 +25,6 @@ public class JoinAggregationStrategy implements AggregationStrategy {
     private final String delimiter;
     private final boolean keepArrayFormat;
 
-    public JoinAggregationStrategy() {
-        this(",", false);
-    }
-
-    public JoinAggregationStrategy(String delimiter) {
-        this(delimiter, false);
-    }
 
     public JoinAggregationStrategy(String delimiter, boolean keepArrayFormat) {
         this.delimiter = delimiter;

@@ -75,26 +75,6 @@ public class PhoneNumberProcessor implements ValueProcessor {
         logger.logProcessorInit("PhoneNumberProcessor", "使用默认配置: format=" + format + ", mask=" + mask);
     }
 
-    public PhoneNumberProcessor(String config) {
-        String tempFormat = DEFAULT_FORMAT;
-        boolean tempMask = false;
-
-        if (config != null && !config.isEmpty()) {
-            String[] parts = config.split(",");
-            if (parts.length > 0) {
-                tempFormat = parts[0].trim().toLowerCase();
-            }
-            if (parts.length > 1) {
-                tempMask = Boolean.parseBoolean(parts[1].trim());
-            }
-        }
-
-        this.format = tempFormat;
-        this.mask = tempMask;
-        logger.logProcessorInit("PhoneNumberProcessor",
-                String.format("配置: format=%s, mask=%s", format, mask));
-    }
-
     @Override
     public Object doProcess(Object value) {
         if (value == null) {

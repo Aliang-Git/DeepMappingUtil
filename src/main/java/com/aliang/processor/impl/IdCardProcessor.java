@@ -62,10 +62,6 @@ import java.util.*;
  * 5. 校验身份证号的合法性（地区码、出生日期、校验位）
  */
 public class IdCardProcessor implements ValueProcessor {
-    private static final String MASK_NONE = "none";
-    private static final String MASK_BIRTH = "birth";
-    private static final String MASK_SEQUENCE = "sequence";
-    private static final String MASK_ALL = "all";
 
     @Override
     public Object doProcess(Object value) {

@@ -1,7 +1,6 @@
 package com.aliang.processor.impl;
 
 import com.aliang.processor.*;
-import com.aliang.utils.ProcessorUtils;
 
 import java.text.*;
 import java.util.*;
@@ -9,58 +8,58 @@ import java.util.*;
 /**
  * 日期格式化处理器
  * 将日期值按照指定格式进行格式化
- * 
+ * <p>
  * 配置格式：dateformat:日期格式字符串
- * 
+ * <p>
  * 示例1 - 标准日期格式化：
  * 配置：dateformat:yyyy-MM-dd
  * 输入：2024-03-20 14:30:00
  * 输出：2024-03-20
- * 
+ * <p>
  * 示例2 - 带时间的格式化：
  * 配置：dateformat:yyyy-MM-dd HH:mm:ss
  * 输入：2024-03-20 14:30:00
  * 输出：2024-03-20 14:30:00
- * 
+ * <p>
  * 示例3 - 中文日期格式：
  * 配置：dateformat:yyyy年MM月dd日
  * 输入：2024-03-20
  * 输出：2024年03月20日
- * 
+ * <p>
  * 示例4 - 时间戳转日期：
  * 配置：dateformat:yyyy-MM-dd HH:mm
  * 输入：1710915600000
  * 输出：2024-03-20 14:30
- * 
+ * <p>
  * 示例5 - 多值日期格式化（数组）：
  * 配置：dateformat:MM/dd/yyyy
  * 输入：["2024-03-20", "2024-03-21"]
  * 输出：["03/20/2024", "03/21/2024"]
- * 
+ * <p>
  * 支持的输入格式：
  * 1. 标准日期时间字符串
  * 2. 时间戳（毫秒）
  * 3. Date对象
  * 4. Calendar对象
- * 
+ * <p>
  * 注意：
  * 1. 默认使用系统时区
  * 2. 如果输入格式无法解析，将返回原值
  * 3. 支持数组和集合类型的批量转换
  */
 public class DateFormatProcessor implements ValueProcessor {
-    private final String outputPattern;
     private static final String DEFAULT_OUTPUT_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final List<String> INPUT_PATTERNS = Arrays.asList(
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy-MM-dd HH:mm",
-        "yyyy-MM-dd HH",
-        "yyyy-MM-dd",
-        "yyyy年MM月dd日 HH:mm:ss",
-        "yyyy年MM月dd日 HH:mm",
-        "yyyy年MM月dd日 HH",
-        "yyyy年MM月dd日"
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd HH",
+            "yyyy-MM-dd",
+            "yyyy年MM月dd日 HH:mm:ss",
+            "yyyy年MM月dd日 HH:mm",
+            "yyyy年MM月dd日 HH",
+            "yyyy年MM月dd日"
     );
+    private final String outputPattern;
 
     public DateFormatProcessor(String config) {
         if (config != null && !config.isEmpty()) {

@@ -24,7 +24,7 @@ public class ProcessorFactory {
                 String[] parts = processorName.split(":", 2);
                 String name = parts[0].toLowerCase();
                 String params = parts.length > 1 ? parts[1] : null;
-                
+
                 ValueProcessor processor = createProcessor(name, params);
                 if (processor != null) {
                     processors.add(processor);

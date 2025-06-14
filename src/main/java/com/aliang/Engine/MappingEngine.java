@@ -1,6 +1,6 @@
 package com.aliang.engine;
 
-import com.aliang.factory.ProcessorFactory;
+import com.aliang.factory.*;
 import com.aliang.processor.*;
 import com.aliang.registry.*;
 import com.aliang.strategy.*;
@@ -12,28 +12,28 @@ import java.util.*;
 
 /**
  * 映射引擎类
- * 
+ * <p>
  * 该类是数据映射的核心引擎，提供了统一的入口来执行数据映射操作。
  * 它通过映射注册中心获取产品映射规则，并执行相应的映射操作。
- * 
+ * <p>
  * 主要功能：
  * 1. 提供统一的数据映射入口
  * 2. 根据产品编码获取对应的映射规则
  * 3. 执行数据映射操作
- * 
+ * <p>
  * 使用示例：
  * <pre>
  * // 创建映射注册中心
  * MappingRegistry registry = new MappingRegistry();
- * 
+ *
  * // 注册产品映射规则
  * ProductMappingRule rule = new ProductMappingRule("A001");
  * rule.addFieldMapping(new FieldMapping("$.user.name", "$.profile.fullName"));
  * registry.register(rule);
- * 
+ *
  * // 创建映射引擎
  * MappingEngine engine = new MappingEngine(registry);
- * 
+ *
  * // 执行映射
  * JSONObject source = JSON.parseObject("{\"user\":{\"name\":\"John\"}}");
  * JSONObject target = JSON.parseObject("{\"profile\":{\"fullName\":\"\"}}");
@@ -50,7 +50,7 @@ public class MappingEngine {
 
     /**
      * 构造函数
-     * 
+     *
      * @param registry 映射注册中心
      */
     public MappingEngine(MappingRegistry registry) {
@@ -60,10 +60,10 @@ public class MappingEngine {
 
     /**
      * 执行数据映射操作
-     * 
+     * <p>
      * 该方法会根据产品编码获取对应的映射规则，并执行数据映射操作。
      * 如果找不到对应的映射规则，会抛出异常。
-     * 
+     *
      * @param source 源数据
      * @return 处理后的目标数据
      * @throws IllegalArgumentException 如果找不到对应的产品编码映射规则
@@ -88,15 +88,20 @@ public class MappingEngine {
                 String sourcePath = mapping.getString("sourcePath");
                 Object value = evaluateSourcePath(source, sourcePath);
 
-                // 应用聚合策略
-                if (mapping.containsKey("aggregationStrategies")) {
-                    value = applyAggregationStrategies(value, mapping.getJSONArray("aggregationStrategies"));
-                }
-                // 应用处理器
-                if (mapping.containsKey("processors")) {
-                    value = applyProcessors(value, mapping.getJSONArray("processors"));
-                }
+                JSONArray aggregations = mapping.getJSONArray("aggregationStrategies");
+                JSONArray processors = mapping.getJSONArray("processors");
 
+                boolean aggregateFirst = shouldAggregateFirst(aggregations);
+
+                if (aggregateFirst && aggregations != null) {
+                    value = applyAggregationStrategies(value, aggregations);
+                }
+                if (processors != null) {
+                    value = applyProcessors(value, processors);
+                }
+                if (!aggregateFirst && aggregations != null) {
+                    value = applyAggregationStrategies(value, aggregations);
+                }
 
                 // 设置结果
                 result.put(targetPath, value);
@@ -214,5 +219,30 @@ public class MappingEngine {
             }
         }
         return result;
+    }
+
+    private boolean shouldAggregateFirst(JSONArray aggregations) {
+        if (aggregations == null || aggregations.isEmpty()) {
+            return false;
+        }
+        // Determine execution order based on the aggregation strategy type.
+        // For textual aggregations like "join" or "concat", we want to run processors FIRST so
+        // that element-level processors (e.g. prefix/suffix) act on individual items before they
+        // are combined into a single String. For numeric/statistical aggregations we aggregate
+        // first and then let processors (rounding, formatting …) post-process the aggregated
+        // value.
+        for (int i = 0; i < aggregations.size(); i++) {
+            String spec = aggregations.getString(i);
+            if (spec == null || spec.isEmpty()) {
+                continue;
+            }
+            String strategyName = spec.split(":", 2)[0].trim().toLowerCase();
+            if ("join".equals(strategyName) || "concat".equals(strategyName)) {
+                // Processors should run FIRST, so we must aggregate LAST
+                return false;
+            }
+        }
+        // Default behaviour: aggregate before running processors
+        return true;
     }
 }

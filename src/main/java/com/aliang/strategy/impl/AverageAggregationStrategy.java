@@ -33,6 +33,6 @@ public class AverageAggregationStrategy implements AggregationStrategy {
             return null;
         }
         BigDecimal sum = numbers.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(new BigDecimal(numbers.size()), 10, BigDecimal.ROUND_HALF_UP);
+        return sum.divide(new BigDecimal(numbers.size()), 10, RoundingMode.HALF_UP);
     }
 } 

@@ -68,20 +68,7 @@ import java.util.*;
  * 5. 非数字输入将返回null
  */
 public class MoneyProcessor implements ValueProcessor {
-    private static final String CNY = "CNY";
-    private static final String USD = "USD";
-    private static final String EUR = "EUR";
-    private static final String NONE = "none";
 
-    private static final String STANDARD = "standard";
-    private static final String SIMPLE = "simple";
-    private static final String CHINESE = "chinese";
-
-    private static final String[] CHINESE_UNITS = {"分", "角", "元",
-            "拾", "佰", "仟", "万", "拾", "佰", "仟", "亿"};
-    private static final String[] CHINESE_NUMS = {"零", "壹", "贰", "叁", "肆",
-            "伍", "陆", "柒", "捌", "玖"};
-    
     @Override
     public Object doProcess(Object value) {
         if (value == null) {
@@ -103,54 +90,5 @@ public class MoneyProcessor implements ValueProcessor {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    private String toChineseNumber(BigDecimal number) {
-        // 处理0
-        if (number.compareTo(BigDecimal.ZERO) == 0) {
-            return "零元整";
-        }
-
-        // 处理负数
-        boolean negative = number.compareTo(BigDecimal.ZERO) < 0;
-        if (negative) {
-            number = number.abs();
-        }
-
-        // 分解金额
-        long yuan = number.longValue();
-        int fen = number.multiply(new BigDecimal(100))
-                .remainder(new BigDecimal(100)).intValue();
-
-        StringBuilder result = new StringBuilder();
-        if (negative) {
-            result.append("负");
-        }
-
-        // 处理元
-        if (yuan > 0) {
-            String yuanStr = String.valueOf(yuan);
-            for (int i = 0; i < yuanStr.length(); i++) {
-                int digit = yuanStr.charAt(i) - '0';
-                result.append(CHINESE_NUMS[digit])
-                        .append(CHINESE_UNITS[yuanStr.length() - i + 1]);
-            }
-        }
-
-        // 处理分
-        if (fen > 0) {
-            int jiao = fen / 10;
-            fen = fen % 10;
-            if (jiao > 0) {
-                result.append(CHINESE_NUMS[jiao]).append("角");
-            }
-            if (fen > 0) {
-                result.append(CHINESE_NUMS[fen]).append("分");
-            }
-        } else {
-            result.append("整");
-        }
-
-        return result.toString();
     }
 } 

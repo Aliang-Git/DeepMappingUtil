@@ -11,32 +11,32 @@ import java.util.*;
 
 /**
  * 字段映射类
- * 
+ * <p>
  * 该类定义了从源路径到目标路径的字段映射规则，支持多个处理器和聚合策略。
  * 处理器用于对字段值进行处理（如格式化、转换等），聚合策略用于对数组类型的字段值进行聚合操作。
- * 
+ * <p>
  * 主要功能：
  * 1. 定义源路径和目标路径的映射关系
  * 2. 支持多个处理器的链式处理
  * 3. 支持多个聚合策略的链式处理
  * 4. 记录处理过程中的无效字段
- * 
+ * <p>
  * 使用示例：
  * <pre>
  * // 创建字段映射规则
  * FieldMapping mapping = new FieldMapping("$.user.name", "$.profile.fullName", "A001");
- * 
+ *
  * // 添加处理器
  * mapping.addProcessors(
  *     new TrimProcessor(),  // 去除空格
  *     new LowercaseProcessor()  // 转小写
  * );
- * 
+ *
  * // 添加聚合策略
  * mapping.addAggregationStrategies(
  *     DefaultAggregationStrategies.getStrategy("SUM")  // 求和
  * );
- * 
+ *
  * // 执行映射
  * JSONObject source = JSON.parseObject("{\"user\":{\"name\":\"John\"}}");
  * JSONObject target = JSON.parseObject("{\"profile\":{\"fullName\":\"\"}}");
@@ -80,57 +80,11 @@ public class FieldMapping {
      */
     private final FieldMappingLogger logger = new DefaultFieldMappingLogger();
 
-    /**
-     * 构造函数
-     * 
-     * @param sourcePath 源数据路径
-     * @param targetPath 目标数据路径
-     */
-    public FieldMapping(String sourcePath, String targetPath) {
-        this.sourcePath = sourcePath;
-        this.targetPath = targetPath;
-        this.processors = new ArrayList<>();
-        this.aggregationStrategies = new ArrayList<>();
-        this.productCode = null;
-    }
-
-    /**
-     * 构造函数
-     * 
-     * @param sourcePath 源数据路径
-     * @param targetPath 目标数据路径
-     * @param productCode 产品编码
-     */
-    public FieldMapping(String sourcePath, String targetPath, String productCode) {
-        this.sourcePath = sourcePath;
-        this.targetPath = targetPath;
-        this.productCode = productCode;
-        this.processors = new ArrayList<>();
-        this.aggregationStrategies = new ArrayList<>();
-    }
-
-    /**
-     * 构造函数
-     * 
-     * @param sourcePath 源数据路径
-     * @param targetPath 目标数据路径
-     * @param processors 处理器列表
-     * @param aggregationStrategies 聚合策略列表
-     * @param productCode 产品编码
-     */
-    public FieldMapping(String sourcePath, String targetPath, List<ValueProcessor> processors, 
-                       List<AggregationStrategy> aggregationStrategies, String productCode) {
-        this.sourcePath = sourcePath;
-        this.targetPath = targetPath;
-        this.processors = processors;
-        this.aggregationStrategies = aggregationStrategies;
-        this.productCode = productCode;
-    }
 
     /**
      * 从源数据中获取字段值
      *
-     * @param source 源数据
+     * @param source     源数据
      * @param sourcePath 源字段路径
      * @return 字段值
      */
@@ -152,14 +106,14 @@ public class FieldMapping {
 
     /**
      * 执行字段映射操作
-     * 
+     * <p>
      * 该方法会按照以下步骤执行映射：
      * 1. 从源数据中获取字段值
      * 2. 检查字段值是否有效
      * 3. 执行处理器链处理
      * 4. 执行聚合策略处理
      * 5. 将处理后的值设置到目标数据中
-     * 
+     *
      * @param source 源数据
      * @param target 目标数据
      * @return 处理后的目标数据
@@ -215,40 +169,5 @@ public class FieldMapping {
                 logger.logMappingFailure(sourcePath, targetPath, value, e.getMessage());
             }
         }
-    }
-
-    /**
-     * 添加处理器
-     * 
-     * @param processors 处理器数组
-     * @return 当前实例，支持链式调用
-     */
-    public FieldMapping addProcessors(ValueProcessor... processors) {
-        if (processors != null) {
-            this.processors.addAll(Arrays.asList(processors));
-        }
-        return this;
-    }
-
-    /**
-     * 添加聚合策略
-     * 
-     * @param strategies 聚合策略数组
-     * @return 当前实例，支持链式调用
-     */
-    public FieldMapping addAggregationStrategies(AggregationStrategy... strategies) {
-        if (strategies != null) {
-            this.aggregationStrategies.addAll(Arrays.asList(strategies));
-        }
-        return this;
-    }
-
-    /**
-     * 获取无效字段集合
-     * 
-     * @return 不可修改的无效字段集合
-     */
-    public Set<String> getInvalidFields() {
-        return Collections.unmodifiableSet(invalidFields);
     }
 }
