@@ -1,168 +1,283 @@
-# 数据映射转换工具
+# 字段映射转换工具
 
-## 项目介绍
-这是一个用于数据映射和转换的工具，支持复杂的字段映射、值处理和聚合操作。
+这是一个强大的字段映射转换工具，支持多种字段处理器和聚合策略，可以灵活地处理数据转换和聚合需求。
 
-## 系统架构
-系统由以下核心组件组成：
-- 映射引擎：负责执行字段映射和转换
-- 处理器链：处理字段值的转换
-- 聚合策略：处理集合类型数据的聚合操作
+## 功能特点
 
-## 快速开始
-1. 添加依赖
-```xml
-<dependency>
-    <groupId>com.aliang</groupId>
-    <artifactId>data-mapping</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
+- 支持JSONPath表达式进行字段映射
+- 提供多种字段处理器进行数据转换
+- 支持多种聚合策略处理数组数据
+- 支持处理器和聚合策略的链式调用
+- 提供详细的日志记录功能
+- 支持产品级别的映射规则管理
 
-2. 创建映射配置
+## 配置示例
+
+### 基本配置结构
+
 ```json
 {
+  "productCode": "DEMO001",
   "mappings": [
     {
-      "source": "user.name",
-      "target": "fullName",
-      "processors": ["prefix:USER_"]
-    },
-    {
-      "source": "orders",
-      "target": "totalAmount",
-      "aggregation": "sum",
-      "processors": ["roundtwodecimal"]
+      "sourcePath": "$.source.field",
+      "targetPath": "$.target.field",
+      "processors": ["trim", "lowercase"],
+      "aggregationStrategies": ["sum"]
     }
   ]
 }
 ```
 
-3. 执行转换
-```java
-DataMapper mapper = new DataMapper();
-Object result = mapper.map(sourceData, mappingConfig);
-```
+## 字段处理器示例
 
-## 配置说明
+### 1. 格式化处理器 (FormatProcessor)
 
-### 字段映射
+将输入值按照指定格式进行格式化。
+
 ```json
 {
-  "source": "源字段路径",
-  "target": "目标字段路径",
-  "processors": ["处理器列表"],
-  "aggregation": "聚合策略"
+  "sourcePath": "$.price",
+  "targetPath": "$.formattedPrice",
+  "processors": ["format:￥%.2f"]
 }
 ```
 
-### 处理器配置
-处理器支持以下格式：
-- 简单处理器：`"processorName"`
-- 带参数处理器：`"processorName:param1,param2"`
+示例数据：
+- 输入：`{"price": 99.9}`
+- 输出：`{"formattedPrice": "￥99.90"}`
 
-#### 内置处理器
-1. 基础转换
-   - `uppercase`: 转换为大写
-   - `lowercase`: 转换为小写
-   - `capitalize`: 首字母大写
+### 2. 子字符串处理器 (SubstringProcessor)
 
-2. 数值处理
-   - `multiplybyten`: 数值乘以10
-   - `roundtwodecimal`: 保留两位小数
-   - `range:min,max,targetMin,targetMax`: 数值范围映射
-     - 示例：`"range:0,100,0,1"` 将0-100范围映射到0-1
+截取字符串的指定部分。
 
-3. 日期处理
-   - `dateformat:pattern`: 日期格式化
-     - 示例：`"dateformat:yyyy-MM-dd"`
-
-4. 字符串处理
-   - `prefix:value`: 添加前缀
-   - `suffix:value`: 添加后缀
-   - `substring:start,end`: 字符串截取
-     - 示例：`"substring:0,5"` 截取前5个字符
-   - `replace:target,replacement`: 字符串替换
-     - 示例：`"replace:old,new"` 将"old"替换为"new"`
-
-5. 特殊处理
-   - `booleantoyesno`: 布尔值转是/否
-   - `mapvalue:key1=value1;key2=value2`: 值映射
-     - 示例：`"mapvalue:active=启用;inactive=禁用"`
-
-### 聚合策略
-支持以下聚合操作：
-- `sum`: 求和
-- `average`: 平均值
-- `max`: 最大值
-- `min`: 最小值
-- `first`: 第一个元素
-- `last`: 最后一个元素
-- `count`: 元素计数
-- `concat`: 字符串连接
-- `join`: 使用分隔符连接字符串
-
-## 高级特性
-
-### 处理器链
-可以组合多个处理器形成处理链：
 ```json
 {
-  "processors": [
-    "multiplybyten",
-    "roundtwodecimal"
-  ]
+  "sourcePath": "$.code",
+  "targetPath": "$.shortCode",
+  "processors": ["substring:0,4"]
 }
 ```
 
-### 嵌套映射
-支持处理嵌套对象和数组：
+示例数据：
+- 输入：`{"code": "ABC12345"}`
+- 输出：`{"shortCode": "ABC1"}`
+
+### 3. 替换处理器 (ReplaceProcessor)
+
+替换字符串中的指定内容。
+
 ```json
 {
-  "source": "user.orders[].items[].price",
-  "target": "totalPrice",
-  "aggregation": "sum"
+  "sourcePath": "$.status",
+  "targetPath": "$.displayStatus",
+  "processors": ["replace:0,未开始", "replace:1,进行中", "replace:2,已完成"]
 }
 ```
 
-### 条件映射
-支持基于条件的映射：
+示例数据：
+- 输入：`{"status": "1"}`
+- 输出：`{"displayStatus": "进行中"}`
+
+### 4. 范围处理器 (RangeProcessor)
+
+将数值从一个范围映射到另一个范围。
+
 ```json
 {
-  "source": "status",
-  "target": "statusText",
-  "processors": ["mapvalue:active=启用;inactive=禁用"]
+  "sourcePath": "$.score",
+  "targetPath": "$.grade",
+  "processors": ["range:0,100,1,5"]
 }
 ```
+
+示例数据：
+- 输入：`{"score": 85}`
+- 输出：`{"grade": 4}`
+
+### 5. 数值计算处理器 (MultiplyByTenProcessor)
+
+对数值进行倍数计算。
+
+```json
+{
+  "sourcePath": "$.amount",
+  "targetPath": "$.amountInCents",
+  "processors": ["multiplyByTen:100"]
+}
+```
+
+示例数据：
+- 输入：`{"amount": 99.99}`
+- 输出：`{"amountInCents": 9999}`
+
+## 聚合策略示例
+
+### 1. 求和 (SUM)
+
+对数组中的数值进行求和。
+
+```json
+{
+  "sourcePath": "$.items[*].price",
+  "targetPath": "$.totalPrice",
+  "aggregationStrategies": ["sum"]
+}
+```
+
+示例数据：
+- 输入：`{"items": [{"price": 100}, {"price": 200}, {"price": 300}]}`
+- 输出：`{"totalPrice": 600}`
+
+### 2. 平均值 (AVERAGE)
+
+计算数组中数值的平均值。
+
+```json
+{
+  "sourcePath": "$.scores[*]",
+  "targetPath": "$.averageScore",
+  "aggregationStrategies": ["average"]
+}
+```
+
+示例数据：
+- 输入：`{"scores": [60, 70, 80, 90]}`
+- 输出：`{"averageScore": 75}`
+
+### 3. 最大值/最小值 (MAX/MIN)
+
+获取数组中的最大值或最小值。
+
+```json
+{
+  "sourcePath": "$.temperatures[*]",
+  "targetPath": "$.highestTemp",
+  "aggregationStrategies": ["max"]
+}
+```
+
+示例数据：
+- 输入：`{"temperatures": [22, 25, 23, 28, 24]}`
+- 输出：`{"highestTemp": 28}`
+
+### 4. 连接 (JOIN/CONCAT)
+
+将数组元素连接成字符串。
+
+```json
+{
+  "sourcePath": "$.tags[*]",
+  "targetPath": "$.tagString",
+  "aggregationStrategies": ["join"]
+}
+```
+
+示例数据：
+- 输入：`{"tags": ["java", "spring", "mysql"]}`
+- 输出：`{"tagString": "java,spring,mysql"}`
+
+### 5. 计数 (COUNT)
+
+统计数组元素的数量。
+
+```json
+{
+  "sourcePath": "$.items[*]",
+  "targetPath": "$.itemCount",
+  "aggregationStrategies": ["count"]
+}
+```
+
+示例数据：
+- 输入：`{"items": ["a", "b", "c", "d"]}`
+- 输出：`{"itemCount": 4}`
+
+### 6. 分组 (GROUP)
+
+保持数组原样返回。
+
+```json
+{
+  "sourcePath": "$.data[*].value",
+  "targetPath": "$.groupedData",
+  "aggregationStrategies": ["group"]
+}
+```
+
+示例数据：
+- 输入：`{"data": [{"value": 1}, {"value": 2}, {"value": 3}]}`
+- 输出：`{"groupedData": [1, 2, 3]}`
+
+### 7. 减法 (SUBTRACT)
+
+第一个值减去其余值。
+
+```json
+{
+  "sourcePath": "$.values[*]",
+  "targetPath": "$.difference",
+  "aggregationStrategies": ["subtract"]
+}
+```
+
+示例数据：
+- 输入：`{"values": [100, 20, 30]}`
+- 输出：`{"difference": 50}` // 100 - 20 - 30 = 50
+
+## 组合使用示例
+
+可以组合多个处理器和聚合策略来实现复杂的转换需求。
+
+```json
+{
+  "sourcePath": "$.items[*].price",
+  "targetPath": "$.summary",
+  "processors": ["multiplyByTen:100", "format:￥%.2f"],
+  "aggregationStrategies": ["sum"]
+}
+```
+
+示例数据：
+- 输入：`{"items": [{"price": 99.9}, {"price": 199.9}]}`
+- 输出：`{"summary": "￥29980.00"}`
+
+## 错误处理
+
+- 当处理器执行失败时，相应的字段会被标记为无效字段
+- 当聚合策略执行失败时，相应的字段会被标记为无效字段
+- 所有错误都会被记录到日志中，方便排查问题
+
+## 日志记录
+
+系统会记录以下类型的日志：
+- 字段处理器的处理过程
+- 聚合策略的处理过程
+- 字段映射的路径信息
+- 产品信息
+- 错误信息
 
 ## 最佳实践
-1. 处理器顺序
-   - 数值处理：先进行数值计算，最后进行精度处理
-   - 字符串处理：注意处理顺序，避免重复处理
 
-2. 聚合策略
-   - 数值聚合：使用 `sum`、`average` 等
-   - 字符串聚合：使用 `concat` 或 `join`
-   - 集合处理：使用 `count` 统计数量
+1. 合理使用处理器链
+   - 按照数据处理的逻辑顺序组织处理器
+   - 避免不必要的处理器调用
 
-3. 性能优化
-   - 合理使用处理器链
-   - 避免不必要的类型转换
-   - 使用适当的聚合策略
+2. 选择合适的聚合策略
+   - 根据业务需求选择合适的聚合策略
+   - 注意数据类型的兼容性
 
-## 常见问题
-1. 处理器参数格式
-   - 使用逗号分隔多个参数
-   - 使用分号分隔键值对
-   - 注意特殊字符的转义
+3. 配置文件管理
+   - 按产品代码组织配置文件
+   - 保持配置文件的结构清晰
 
-2. 日期格式化
-   - 使用标准的日期格式模式
-   - 注意时区问题
+4. 错误处理
+   - 及时处理无效字段
+   - 定期检查错误日志
 
-3. 数值处理
-   - 注意精度问题
-   - 合理使用范围映射
+5. 性能优化
+   - 避免过长的处理器链
+   - 合理使用聚合策略
 
 ## 贡献指南
 欢迎提交 Issue 和 Pull Request 来帮助改进项目。

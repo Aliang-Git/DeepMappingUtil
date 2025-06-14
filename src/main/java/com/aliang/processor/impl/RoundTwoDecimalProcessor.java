@@ -9,8 +9,52 @@ import java.math.*;
 import java.util.*;
 
 /**
- * 四舍五入处理器
- * 将数值四舍五入到指定的小数位数
+ * 小数位数处理器
+ * 将数值四舍五入到指定小数位数
+ * 
+ * 配置格式：roundTwoDecimal[:小数位数]
+ * 默认值：2位小数
+ * 
+ * 示例1 - 标准金额格式：
+ * 配置：roundTwoDecimal
+ * 输入：123.456
+ * 输出：123.46
+ * 
+ * 示例2 - 自定义小数位：
+ * 配置：roundTwoDecimal:3
+ * 输入：123.4567
+ * 输出：123.457
+ * 
+ * 示例3 - 价格处理：
+ * 配置：roundTwoDecimal
+ * 输入：99.999
+ * 输出：100.00
+ * 
+ * 示例4 - 精确计算：
+ * 配置：roundTwoDecimal:4
+ * 输入：1.23456789
+ * 输出：1.2346
+ * 
+ * 示例5 - 批量处理（数组）：
+ * 配置：roundTwoDecimal
+ * 输入：[123.456, 789.123, 456.789]
+ * 输出：[123.46, 789.12, 456.79]
+ * 
+ * 特殊情况处理：
+ * 1. 整数：
+ * 输入：100
+ * 输出：100.00
+ * 
+ * 2. 科学计数：
+ * 输入：1.23E3
+ * 输出：1230.00
+ * 
+ * 注意：
+ * 1. 使用BigDecimal进行精确计算
+ * 2. 采用ROUND_HALF_UP模式（四舍五入）
+ * 3. 支持数组和集合类型的批量处理
+ * 4. 非数值类型的输入将被忽略并返回原值
+ * 5. 小数位数必须是非负整数
  */
 public class RoundTwoDecimalProcessor implements ValueProcessor {
     private static final Logger logger = LoggerFactory.getLogger(RoundTwoDecimalProcessor.class);
