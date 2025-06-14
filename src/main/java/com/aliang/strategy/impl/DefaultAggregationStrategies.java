@@ -21,8 +21,8 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
                     .filter(value -> value instanceof Number)
                     .map(value -> new BigDecimal(value.toString()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
-            return sum.setScale(2, RoundingMode.HALF_UP);  // 直接返回 BigDecimal，保留两位小数
+
+            return sum;  // 直接返回 BigDecimal
         }
     },
 
@@ -32,13 +32,18 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     AVERAGE {
         @Override
         public Object apply(List<?> values) {
-            if (values.isEmpty()) return null;
-            double average = values.stream()
-                    .filter(v -> v instanceof Number)
-                    .mapToDouble(v -> ((Number)v).doubleValue())
-                    .average()
-                    .orElse(0);
-            return average;
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            List<BigDecimal> numbers = values.stream()
+                    .filter(value -> value instanceof Number)
+                    .map(value -> new BigDecimal(value.toString()))
+                    .collect(Collectors.toList());
+            if (numbers.isEmpty()) {
+                return null;
+            }
+            BigDecimal sum = numbers.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+            return sum.divide(new BigDecimal(numbers.size()));
         }
     },
 
@@ -51,11 +56,11 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             if (values == null || values.isEmpty()) {
                 return null;
             }
-            
+
             return values.stream()
                     .filter(value -> value instanceof Number)
-                    .map(value -> ((Number) value).doubleValue())
-                    .max(Double::compareTo)
+                    .map(value -> new BigDecimal(value.toString()))
+                    .max(BigDecimal::compareTo)
                     .orElse(null);
         }
     },
@@ -69,11 +74,11 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             if (values == null || values.isEmpty()) {
                 return null;
             }
-            
+
             return values.stream()
                     .filter(value -> value instanceof Number)
-                    .map(value -> ((Number) value).doubleValue())
-                    .min(Double::compareTo)
+                    .map(value -> new BigDecimal(value.toString()))
+                    .min(BigDecimal::compareTo)
                     .orElse(null);
         }
     },
@@ -87,12 +92,7 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             if (values == null || values.isEmpty()) {
                 return null;
             }
-            Object first = values.get(0);
-            // 如果第一个值也是列表，返回其第一个元素
-            if (first instanceof List && !((List<?>) first).isEmpty()) {
-                return ((List<?>) first).get(0);
-            }
-            return first;
+            return values.get(0);
         }
     },
 
@@ -102,7 +102,10 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
     LAST {
         @Override
         public Object apply(List<?> values) {
-            return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            return values.get(values.size() - 1);
         }
     },
 
@@ -115,9 +118,10 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             if (values == null || values.isEmpty()) {
                 return null;
             }
+            String delimiter = ",";
             return values.stream()
                     .map(Object::toString)
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(delimiter));
         }
     },
 
@@ -140,11 +144,11 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             if (values == null || values.isEmpty()) {
                 return null;
             }
-            
+
             if (!(values.get(0) instanceof Number)) {
                 throw new IllegalArgumentException("SUBTRACT 策略只支持数字类型");
             }
-            
+
             double result = ((Number) values.get(0)).doubleValue();
             for (int i = 1; i < values.size(); i++) {
                 Object value = values.get(i);
@@ -156,5 +160,33 @@ public enum DefaultAggregationStrategies implements AggregationStrategy {
             }
             return result;
         }
-    };
+    },
+
+    /**
+     * 计数
+     */
+    COUNT {
+        @Override
+        public Object apply(List<?> values) {
+            if (values == null) {
+                return 0;
+            }
+            return values.size();
+        }
+    },
+
+    /**
+     * 连接
+     */
+    CONCAT {
+        @Override
+        public Object apply(List<?> values) {
+            if (values == null || values.isEmpty()) {
+                return null;
+            }
+            return values.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining());
+        }
+    }
 }

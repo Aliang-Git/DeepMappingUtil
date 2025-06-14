@@ -228,8 +228,16 @@ public class FieldMapping {
                 }
             }
 
-            // 设置目标值
-            JSONPath.set(target, targetPath, value);
+            // 设置到目标数据中
+            try {
+                JSONPath.set(target, targetPath, value);
+                logger.debug("字段映射成功：源路径={}，目标路径={}，值={}", sourcePath, targetPath, value);
+            } catch (Exception e) {
+                String message = String.format("设置目标字段失败：源路径=%s，目标路径=%s，错误=%s", 
+                    sourcePath, targetPath, e.getMessage());
+                logger.error(message);
+                invalidFields.add(sourcePath);
+            }
             return target;
         } catch (Exception e) {
             String message = String.format("字段映射执行失败：源路径=%s，目标路径=%s，错误=%s", 

@@ -31,6 +31,34 @@ public class ProductMappingService {
     }
     
     /**
+     * 保存映射配置到MongoDB
+     * @param mappingConfigJson 映射配置JSON字符串
+     */
+    public void saveMappingConfig(String mappingConfigJson) {
+        try {
+            JSONObject config = JSONObject.parseObject(mappingConfigJson);
+            String productCode = config.getString("productCode");
+            
+            MongoDatabase database = mongoClient.getDatabase(databaseName);
+            MongoCollection<Document> collection = database.getCollection(collectionName);
+            
+            // 将JSON字符串转换为Document
+            Document document = Document.parse(mappingConfigJson);
+            
+            // 使用产品编码作为查询条件
+            Document query = new Document("productCode", productCode);
+            
+            // 如果已存在则更新，不存在则插入
+            collection.replaceOne(query, document, new com.mongodb.client.model.ReplaceOptions().upsert(true));
+            
+            logger.info("映射配置保存成功: productCode={}", productCode);
+        } catch (Exception e) {
+            logger.error("保存映射配置失败: error={}", e.getMessage(), e);
+            throw new RuntimeException("保存映射配置失败", e);
+        }
+    }
+    
+    /**
      * 处理产品映射
      * @param productCode 产品编码
      * @param sourceData 源数据
@@ -61,7 +89,7 @@ public class ProductMappingService {
     /**
      * 从MongoDB获取映射配置
      */
-    private JSONObject getMappingConfigFromMongo(String productCode) {
+    protected JSONObject getMappingConfigFromMongo(String productCode) {
         try {
             MongoDatabase database = mongoClient.getDatabase(databaseName);
             MongoCollection<Document> collection = database.getCollection(collectionName);

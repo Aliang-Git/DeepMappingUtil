@@ -32,6 +32,21 @@ public class AggregationStrategyFactory {
                 case "min":
                     aggregationStrategies.add(DefaultAggregationStrategies.MIN);
                     break;
+                case "join":
+                    aggregationStrategies.add(DefaultAggregationStrategies.JOIN);
+                    break;
+                case "average":
+                    aggregationStrategies.add(DefaultAggregationStrategies.AVERAGE);
+                    break;
+                case "group":
+                    aggregationStrategies.add(DefaultAggregationStrategies.GROUP);
+                    break;
+                case "count":
+                    aggregationStrategies.add(DefaultAggregationStrategies.COUNT);
+                    break;
+                case "concat":
+                    aggregationStrategies.add(DefaultAggregationStrategies.CONCAT);
+                    break;
                 default:
                     throw new RuntimeException("不支持的聚合处理: " + strategyName);
             }

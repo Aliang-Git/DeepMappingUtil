@@ -65,6 +65,7 @@ public class MappingConfigParser {
                 
                 for (String strategyName : aggregationStrategyNames) {
                     try {
+                        // 如果策略名称包含参数（如 join:,），则直接使用
                         List<AggregationStrategy> strategies = AggregationStrategyFactory.createStrategy(Collections.singletonList(strategyName));
                         validStrategies.addAll(strategies);
                     } catch (Exception e) {
