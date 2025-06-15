@@ -3,70 +3,24 @@ package com.aliang.test;
 import com.aliang.service.*;
 import com.alibaba.fastjson.*;
 import org.junit.*;
+import org.junit.runner.*;
 import org.slf4j.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.context.annotation.*;
+import org.springframework.test.context.junit4.*;
+
+import java.util.*;
 
 import static org.junit.Assert.*;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class DeepNestedMappingTest {
     private static final Logger logger = LoggerFactory.getLogger(DeepNestedMappingTest.class);
-    private ProductMappingService mappingService;
 
-    @Before
-    public void setUp() {
-        mappingService = new ProductMappingService(
-                "mongodb://localhost:27017",
-                "test_db",
-                "mapping_configs"
-        ) {
-            @Override
-            protected JSONObject getMappingConfigFromMongo(String productCode) {
-                if ("DEEP01".equals(productCode)) {
-                    return JSON.parseObject("{\n" +
-                            "  \"code\": \"DEEP01\",\n" +
-                            "  \"mappings\": [\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.user.profile.contact.address.street\",\n" +
-                            "      \"targetPath\": \"$.streetAddress\",\n" +
-                            "      \"processors\": [\"uppercase\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.user.profile.contact.address.zipcode\",\n" +
-                            "      \"targetPath\": \"$.postalCode\",\n" +
-                            "      \"processors\": [\"prefix:ZIP_\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.user.profile.preferences.notifications.email\",\n" +
-                            "      \"targetPath\": \"$.emailNotif\",\n" +
-                            "      \"processors\": [\"booleantoyesno\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.order.details.items[0].product.info.name\",\n" +
-                            "      \"targetPath\": \"$.firstProductName\",\n" +
-                            "      \"processors\": [\"uppercase\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.order.details.items[0].product.pricing.unitPrice\",\n" +
-                            "      \"targetPath\": \"$.firstProductUnitPrice\",\n" +
-                            "      \"processors\": [\"roundtwodecimal\", \"prefix:$\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.order.details.totals.amounts.total\",\n" +
-                            "      \"targetPath\": \"$.orderTotal\",\n" +
-                            "      \"processors\": [\"roundtwodecimal\", \"prefix:$\"]\n" +
-                            "    },\n" +
-                            "    {\n" +
-                            "      \"sourcePath\": \"$.order.details.items[*].product.pricing.quantity\",\n" +
-                            "      \"targetPath\": \"$.totalItems\",\n" +
-                            "      \"aggregationStrategies\": [\"sum\"],\n" +
-                            "      \"processors\": [\"tointeger\"]\n" +
-                            "    }\n" +
-                            "  ]\n" +
-                            "}");
-                }
-                return null;
-            }
-        };
-    }
+    @Autowired
+    private ProductMappingService mappingService;
 
     @Test
     public void testDeepNestedMapping() {
@@ -118,7 +72,8 @@ public class DeepNestedMappingTest {
 
         JSONObject source = JSON.parseObject(sourceJson);
         JSONObject targetTemplate = JSON.parseObject("{}");
-        JSONObject result = mappingService.processMapping("DEEP01", source, targetTemplate);
+        Map<String, Object> resultMap = mappingService.processMapping("DEEP01", source, targetTemplate);
+        JSONObject result = new JSONObject(resultMap);
 
         logger.info("映射结果: {}", JSON.toJSONString(result, true));
 
@@ -130,5 +85,32 @@ public class DeepNestedMappingTest {
         assertEquals("$999.49", result.getString("firstProductUnitPrice"));
         assertEquals("$1998.98", result.getString("orderTotal"));
         assertEquals(Integer.valueOf(2), result.getInteger("totalItems"));
+    }
+
+    @TestConfiguration
+    static class MockConfig {
+        @Bean
+        public ProductMappingService mappingService() {
+            return new ProductMappingService() {
+                @Override
+                protected JSONObject getMappingConfigFromMongo(String productCode) {
+                    if ("DEEP01".equals(productCode)) {
+                        return JSON.parseObject("{\n" +
+                                "  \"code\": \"DEEP01\",\n" +
+                                "  \"mappings\": [\n" +
+                                "    {\"sourcePath\": \"$.user.profile.contact.address.street\", \"targetPath\": \"$.streetAddress\", \"processors\": [\"uppercase\"]},\n" +
+                                "    {\"sourcePath\": \"$.user.profile.contact.address.zipcode\", \"targetPath\": \"$.postalCode\", \"processors\": [\"prefix:ZIP_\"]},\n" +
+                                "    {\"sourcePath\": \"$.user.profile.preferences.notifications.email\", \"targetPath\": \"$.emailNotif\", \"processors\": [\"booleantoyesno\"]},\n" +
+                                "    {\"sourcePath\": \"$.order.details.items[0].product.info.name\", \"targetPath\": \"$.firstProductName\", \"processors\": [\"uppercase\"]},\n" +
+                                "    {\"sourcePath\": \"$.order.details.items[0].product.pricing.unitPrice\", \"targetPath\": \"$.firstProductUnitPrice\", \"processors\": [\"roundtwodecimal\", \"prefix:$\"]},\n" +
+                                "    {\"sourcePath\": \"$.order.details.totals.amounts.total\", \"targetPath\": \"$.orderTotal\", \"processors\": [\"roundtwodecimal\", \"prefix:$\"]},\n" +
+                                "    {\"sourcePath\": \"$.order.details.items[*].product.pricing.quantity\", \"targetPath\": \"$.totalItems\", \"aggregationStrategies\": [\"sum\"], \"processors\": [\"tointeger\"]}\n" +
+                                "  ]\n" +
+                                "}");
+                    }
+                    return null;
+                }
+            };
+        }
     }
 } 
