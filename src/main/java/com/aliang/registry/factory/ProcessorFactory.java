@@ -13,30 +13,6 @@ import java.util.*;
 public class ProcessorFactory {
     private final ProcessorLogger logger = new DefaultProcessorLogger();
 
-    public List<ValueProcessor> createProcessors(List<String> processorNames) {
-        List<ValueProcessor> processors = new ArrayList<>();
-        if (processorNames == null || processorNames.isEmpty()) {
-            return processors;
-        }
-
-        for (String processorName : processorNames) {
-            try {
-                String[] parts = processorName.split(":", 2);
-                String name = parts[0].toLowerCase();
-                String params = parts.length > 1 ? parts[1] : null;
-
-                ValueProcessor processor = createProcessor(name, params);
-                if (processor != null) {
-                    processors.add(processor);
-                }
-            } catch (Exception e) {
-                logger.logProcessorCreationFailure(processorName, e.getMessage());
-                /*  继续处理下一个处理器，不阻断流程 */
-            }
-        }
-        return processors;
-    }
-
     public ValueProcessor createProcessor(String name, String params) {
         if (name == null || name.isEmpty()) {
             logger.logProcessorParamError("unknown", "处理器名称为空");
@@ -71,7 +47,9 @@ public class ProcessorFactory {
                     return new MultiplyByTenProcessor(params);
                 case "roundtwodecimal":
                     logger.logProcessorInit("RoundTwoDecimalProcessor", params);
-                    return new RoundTwoDecimalProcessor(params);
+                    return params != null && !params.isEmpty() ?
+                            new RoundTwoDecimalProcessor(params) :
+                            new RoundTwoDecimalProcessor();
                 case "dateformat":
                     logger.logProcessorInit("DateFormatProcessor", params);
                     return new DateFormatProcessor(params);
@@ -127,6 +105,15 @@ public class ProcessorFactory {
                 case "phone":
                     logger.logProcessorInit("PhoneNumberProcessor", params);
                     return new PhoneNumberProcessor();
+                case "json":
+                    logger.logProcessorInit("JsonProcessor", params);
+                    return new JsonProcessor();
+                case "reverse":
+                    logger.logProcessorInit("ReverseProcessor", params);
+                    return new ReverseProcessor();
+                case "trim":
+                    logger.logProcessorInit("TrimProcessor", params);
+                    return new TrimProcessor();
                 default:
                     logger.logProcessorParamError(name, "未知的处理器类型");
                     return null;

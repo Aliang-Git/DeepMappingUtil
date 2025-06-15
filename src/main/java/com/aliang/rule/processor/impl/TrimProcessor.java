@@ -1,13 +1,12 @@
 package com.aliang.rule.processor.impl;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.rule.processor.*;
-import com.aliang.utils.*;
-
-import java.util.*;
 
 /**
  * 字符串修剪处理器
- * 去除字符串首尾的空白字符
+ * 去除输入字符串的首尾空白字符
  * <p>
  * 配置格式：trim
  * 不需要额外参数
@@ -58,11 +57,26 @@ import java.util.*;
  * 5. null值将被返回null
  */
 public class TrimProcessor implements ValueProcessor {
+    private final ProcessorLogger logger = new DefaultProcessorLogger();
+
+    public TrimProcessor() {
+        logger.logProcessorInit("TrimProcessor", null);
+    }
+
     @Override
     public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
+        if (value == null) {
+            return null;
         }
-        return value instanceof String ? ((String) value).trim() : value;
+
+        try {
+            String str = value.toString();
+            String result = str.trim();
+            logger.logProcessSuccess("TrimProcessor", value, result);
+            return result;
+        } catch (Exception e) {
+            logger.logProcessFailure("TrimProcessor", value, e.getMessage());
+            return value;
+        }
     }
 } 

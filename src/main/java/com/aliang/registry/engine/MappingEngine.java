@@ -169,19 +169,14 @@ public class MappingEngine {
                 }
             }
             if (isArray) {
-                JSONArray arr = (JSONArray) next;
-                JSONObject childObj;
-                if (arr.isEmpty()) {
+                JSONArray arr = null;
+                if (next instanceof JSONArray) {
+                    arr = (JSONArray) next;
+                }
+                JSONObject childObj = new JSONObject();
+                if (arr != null && arr.isEmpty()) {
                     childObj = new JSONObject();
                     arr.add(childObj);
-                } else {
-                    Object first = arr.get(0);
-                    if (first instanceof JSONObject) {
-                        childObj = (JSONObject) first;
-                    } else {
-                        childObj = new JSONObject();
-                        arr.set(0, childObj);
-                    }
                 }
                 setPathRecursive(childObj, parts, idx + 1, value);
             } else {

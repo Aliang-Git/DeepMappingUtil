@@ -47,4 +47,16 @@ public class MappingRegistry {
         }
         return mappings.getOrDefault(code, new HashMap<>());
     }
+
+    /**
+     * 清理指定产品编码的映射规则
+     *
+     * @param code 产品编码
+     */
+    public void clearMappings(String code) {
+        if (code != null && !code.trim().isEmpty()) {
+            mappings.remove(code);
+            logger.debug("清理映射规则成功 - code: {}", code);
+        }
+    }
 }

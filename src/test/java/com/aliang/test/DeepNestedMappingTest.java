@@ -83,7 +83,7 @@ public class DeepNestedMappingTest {
         assertEquals("是", result.getString("emailNotif"));
         assertEquals("LAPTOP", result.getString("firstProductName"));
         assertEquals("$999.49", result.getString("firstProductUnitPrice"));
-        assertEquals("$1998.98", result.getString("orderTotal"));
+        assertEquals("$1998.98", result.getJSONObject("orderTotal").getString("order"));
         assertEquals(Integer.valueOf(2), result.getInteger("totalItems"));
     }
 
@@ -103,7 +103,7 @@ public class DeepNestedMappingTest {
                                 "    {\"sourcePath\": \"$.user.profile.preferences.notifications.email\", \"targetPath\": \"$.emailNotif\", \"processors\": [\"booleantoyesno\"]},\n" +
                                 "    {\"sourcePath\": \"$.order.details.items[0].product.info.name\", \"targetPath\": \"$.firstProductName\", \"processors\": [\"uppercase\"]},\n" +
                                 "    {\"sourcePath\": \"$.order.details.items[0].product.pricing.unitPrice\", \"targetPath\": \"$.firstProductUnitPrice\", \"processors\": [\"roundtwodecimal\", \"prefix:$\"]},\n" +
-                                "    {\"sourcePath\": \"$.order.details.totals.amounts.total\", \"targetPath\": \"$.orderTotal\", \"processors\": [\"roundtwodecimal\", \"prefix:$\"]},\n" +
+                                "    {\"sourcePath\": \"$.order.details.totals.amounts.total\", \"targetPath\": \"$.orderTotal.order\", \"processors\": [\"roundtwodecimal\", \"prefix:$\"]},\n" +
                                 "    {\"sourcePath\": \"$.order.details.items[*].product.pricing.quantity\", \"targetPath\": \"$.totalItems\", \"aggregationStrategies\": [\"sum\"], \"processors\": [\"tointeger\"]}\n" +
                                 "  ]\n" +
                                 "}");

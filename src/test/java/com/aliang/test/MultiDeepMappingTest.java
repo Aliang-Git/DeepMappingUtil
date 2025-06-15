@@ -112,9 +112,10 @@ public class MultiDeepMappingTest {
         }
         JSONObject source = buildSourceJson();
         for (String code : codes) {
+            JSONObject sourceTemplate = source.getJSONObject("source");
             JSONObject targetTemplate = source.getJSONObject("targetTemplate");
             try {
-                Map<String, Object> resultMap = mappingService.processMapping(code, source, targetTemplate);
+                Map<String, Object> resultMap = mappingService.processMapping(code, sourceTemplate, targetTemplate);
                 assertNotNull("映射结果不能为空 - " + code, resultMap);
                 logger.info("{} -> 映射结果:\n{}", code, JSON.toJSONString(resultMap, true));
             } catch (Exception e) {

@@ -32,12 +32,14 @@ public class ProductMappingService extends BaseMappingService {
                 throw new IllegalArgumentException("未找到产品映射配置: " + productCode);
             }
 
-            /*  解析并注册配置 */
+            /*  清理旧规则并注册新规则 */
+            mappingRegistry.clearMappings(productCode);
             MappingConfigParser.parseAndRegister(mappingConfig, mappingRegistry);
 
             /*  执行映射 */
             JSONObject sourceJson = new JSONObject(source);
-            JSONObject targetJson = new JSONObject(targetTemplate);
+            // 创建全新的模板对象，避免引用问题
+            JSONObject targetJson = JSON.parseObject(JSON.toJSONString(targetTemplate));
             JSONObject result = engine.executeMapping(productCode, sourceJson, targetJson);
             return result.getInnerMap();
         } catch (Exception e) {
