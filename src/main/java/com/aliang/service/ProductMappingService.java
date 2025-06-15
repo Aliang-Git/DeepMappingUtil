@@ -4,18 +4,27 @@ import com.aliang.registry.engine.*;
 import com.aliang.registry.parse.*;
 import com.alibaba.fastjson.*;
 import org.slf4j.*;
+import org.springframework.stereotype.*;
 
+import javax.annotation.*;
+import java.util.*;
+
+@Service
 public class ProductMappingService extends BaseMappingService {
     private static final Logger logger = LoggerFactory.getLogger(ProductMappingService.class);
-    private final MappingEngine engine;
+    private MappingEngine engine;
 
-    public ProductMappingService(String mongoUri, String dbName, String collectionName) {
-        super(mongoUri, dbName, collectionName);
+    public ProductMappingService() {
+        super();
+    }
+
+    @PostConstruct
+    public void initEngine() {
         this.engine = new MappingEngine(mappingRegistry);
     }
 
     @Override
-    public JSONObject processMapping(String productCode, JSONObject source, JSONObject targetTemplate) {
+    public Map<String, Object> processMapping(String productCode, Map<String, Object> source, Map<String, Object> targetTemplate) {
         try {
             /*  获取映射配置 */
             JSONObject mappingConfig = getMappingConfigFromMongo(productCode);
@@ -27,7 +36,10 @@ public class ProductMappingService extends BaseMappingService {
             MappingConfigParser.parseAndRegister(mappingConfig, mappingRegistry);
 
             /*  执行映射 */
-            return engine.executeMapping(productCode, source, targetTemplate);
+            JSONObject sourceJson = new JSONObject(source);
+            JSONObject targetJson = new JSONObject(targetTemplate);
+            JSONObject result = engine.executeMapping(productCode, sourceJson, targetJson);
+            return result.getInnerMap();
         } catch (Exception e) {
             logger.error("映射处理失败 - 产品编码: {}, 错误: {}", productCode, e.getMessage());
             throw new RuntimeException("处理产品映射失败", e);

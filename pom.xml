@@ -3,6 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/>
+    </parent>
 
     <groupId>com.aliang</groupId>
     <artifactId>data-processor</artifactId>
@@ -17,6 +23,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.83</version>
@@ -29,7 +43,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.7.0</version> <!-- 请根据需要选择合适的版本 -->
+            <version>4.7.0</version>
         </dependency>
         <!-- SLF4J API - 适配 JDK 8 -->
         <dependency>
@@ -37,21 +51,18 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.36</version>
         </dependency>
-
         <!-- Logback Classic - 适配 JDK 8 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.11</version>
         </dependency>
-
         <!-- Logback Core - 必须和 logback-classic 版本一致 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.2.11</version>
         </dependency>
-
         <!-- 添加 JUnit 依赖 -->
         <dependency>
             <groupId>junit</groupId>
@@ -59,14 +70,12 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-
         <!-- Commons Lang -->
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -1,4 +1,4 @@
-use mapping_database
+use config
 db.mapping_rules.drop()
 
 db.mapping_rules.insertMany([

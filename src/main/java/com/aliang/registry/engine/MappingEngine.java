@@ -117,10 +117,92 @@ public class MappingEngine {
 
     private void setTargetPathValue(JSONObject result, String targetPath, Object value) {
         try {
-            JSONPath.set(result, targetPath, value);
+            // 递归支持多层[*]嵌套
+            if (targetPath.startsWith("$.")) {
+                targetPath = targetPath.substring(2);
+            }
+            String[] parts = targetPath.split("\\.");
+            setPathRecursive(result, parts, 0, value);
         } catch (Exception e) {
             logger.error("设置目标路径失败 - path: {}, 错误: {}", targetPath, e.getMessage());
             throw new RuntimeException("设置目标路径失败 ", e);
+        }
+    }
+
+    // 递归辅助方法
+    @SuppressWarnings("unchecked")
+    private void setPathRecursive(Object current, String[] parts, int idx, Object value) {
+        if (idx >= parts.length) return;
+        String part = parts[idx];
+        boolean isArray = part.endsWith("[*]");
+        String key = isArray ? part.substring(0, part.length() - 3) : part;
+        if (idx == parts.length - 1) {
+            // 最后一层，赋值
+            if (isArray) {
+                JSONArray arr = new JSONArray();
+                arr.add(value);
+                if (current instanceof JSONObject) {
+                    ((JSONObject) current).put(key, arr);
+                }
+            } else {
+                if (current instanceof JSONObject) {
+                    ((JSONObject) current).put(key, value);
+                }
+            }
+            return;
+        }
+        // 不是最后一层
+        Object next;
+        if (current instanceof JSONObject) {
+            JSONObject obj = (JSONObject) current;
+            if (!obj.containsKey(key)) {
+                next = isArray ? new JSONArray() : new JSONObject();
+                obj.put(key, next);
+            } else {
+                next = obj.get(key);
+                // 类型兼容：如果是List但不是JSONArray，转为JSONArray
+                if (isArray && next instanceof List && !(next instanceof JSONArray)) {
+                    JSONArray arr = new JSONArray();
+                    arr.addAll((List<?>) next);
+                    obj.put(key, arr);
+                    next = arr;
+                }
+            }
+            if (isArray) {
+                JSONArray arr = (JSONArray) next;
+                JSONObject childObj;
+                if (arr.isEmpty()) {
+                    childObj = new JSONObject();
+                    arr.add(childObj);
+                } else {
+                    Object first = arr.get(0);
+                    if (first instanceof JSONObject) {
+                        childObj = (JSONObject) first;
+                    } else {
+                        childObj = new JSONObject();
+                        arr.set(0, childObj);
+                    }
+                }
+                setPathRecursive(childObj, parts, idx + 1, value);
+            } else {
+                setPathRecursive(next, parts, idx + 1, value);
+            }
+        } else if (current instanceof JSONArray) {
+            JSONArray arr = (JSONArray) current;
+            JSONObject childObj;
+            if (arr.isEmpty()) {
+                childObj = new JSONObject();
+                arr.add(childObj);
+            } else {
+                Object first = arr.get(0);
+                if (first instanceof JSONObject) {
+                    childObj = (JSONObject) first;
+                } else {
+                    childObj = new JSONObject();
+                    arr.set(0, childObj);
+                }
+            }
+            setPathRecursive(childObj, parts, idx + 1, value);
         }
     }
 
