@@ -64,7 +64,7 @@ public class FormatProcessor implements ValueProcessor {
         try {
             return String.format(format, param);
         } catch (Exception e) {
-            // 回退为 value.toString()
+            /*  回退为 value.toString() */
             return String.format(format, value);
         }
     }

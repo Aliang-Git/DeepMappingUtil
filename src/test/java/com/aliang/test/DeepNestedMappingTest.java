@@ -26,37 +26,37 @@ public class DeepNestedMappingTest {
                             "  \"mappings\": [\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.user.profile.contact.address.street\",\n" +
-                            "      \"targetPath\": \"streetAddress\",\n" +
+                            "      \"targetPath\": \"$.streetAddress\",\n" +
                             "      \"processors\": [\"uppercase\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.user.profile.contact.address.zipcode\",\n" +
-                            "      \"targetPath\": \"postalCode\",\n" +
+                            "      \"targetPath\": \"$.postalCode\",\n" +
                             "      \"processors\": [\"prefix:ZIP_\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.user.profile.preferences.notifications.email\",\n" +
-                            "      \"targetPath\": \"emailNotif\",\n" +
+                            "      \"targetPath\": \"$.emailNotif\",\n" +
                             "      \"processors\": [\"booleantoyesno\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.order.details.items[0].product.info.name\",\n" +
-                            "      \"targetPath\": \"firstProductName\",\n" +
+                            "      \"targetPath\": \"$.firstProductName\",\n" +
                             "      \"processors\": [\"uppercase\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.order.details.items[0].product.pricing.unitPrice\",\n" +
-                            "      \"targetPath\": \"firstProductUnitPrice\",\n" +
+                            "      \"targetPath\": \"$.firstProductUnitPrice\",\n" +
                             "      \"processors\": [\"roundtwodecimal\", \"prefix:$\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.order.details.totals.amounts.total\",\n" +
-                            "      \"targetPath\": \"orderTotal\",\n" +
+                            "      \"targetPath\": \"$.orderTotal\",\n" +
                             "      \"processors\": [\"roundtwodecimal\", \"prefix:$\"]\n" +
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.order.details.items[*].product.pricing.quantity\",\n" +
-                            "      \"targetPath\": \"totalItems\",\n" +
+                            "      \"targetPath\": \"$.totalItems\",\n" +
                             "      \"aggregationStrategies\": [\"sum\"],\n" +
                             "      \"processors\": [\"tointeger\"]\n" +
                             "    }\n" +

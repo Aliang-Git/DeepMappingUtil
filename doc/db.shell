@@ -6,13 +6,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP01",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetAddress",        processors: ["uppercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "postalCode",           processors: ["prefix:ZIP_"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailNotif",      processors: ["booleantoyesno"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "firstProductName",     processors: ["uppercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "firstProductUnitPrice", processors: ["roundtwodecimal","prefix:$"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotal",           processors: ["roundtwodecimal","prefix:$"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "totalItems",  aggregationStrategies: ["sum"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetAddress",        processors: ["uppercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.postalCode",           processors: ["prefix:ZIP_"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailNotif",      processors: ["booleantoyesno"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.firstProductName",     processors: ["uppercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.firstProductUnitPrice", processors: ["roundtwodecimal","prefix:$"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotal",           processors: ["roundtwodecimal","prefix:$"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.totalItems",  aggregationStrategies: ["sum"], processors: ["tointeger"] }
   ]
 },
 
@@ -20,13 +20,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP02",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetLower",          processors: ["lowercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "postalCodeUS",         processors: ["suffix:-US"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailStatus",     processors: ["booleantoyesno:Yes,No"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "productNameCap",       processors: ["capitalize"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "unitPriceUSD", processors: ["multiplybyten:1.1","roundtwodecimal","prefix:USD "] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalUSD",        processors: ["roundtwodecimal","prefix:USD "] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "itemCount",   aggregationStrategies: ["count"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetLower",          processors: ["lowercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.postalCodeUS",         processors: ["suffix:-US"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailStatus",     processors: ["booleantoyesno:Yes,No"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.productNameCap",       processors: ["capitalize"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.unitPriceUSD", processors: ["multiplybyten:1.1","roundtwodecimal","prefix:USD "] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalUSD",        processors: ["roundtwodecimal","prefix:USD "] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.itemCount",   aggregationStrategies: ["count"], processors: ["tointeger"] }
   ]
 },
 
@@ -34,13 +34,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP03",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetCap",            processors: ["capitalize"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipPrefixed",          processors: ["prefix:ZIP-"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailYN",         processors: ["booleantoyesno"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "productNameLower",     processors: ["lowercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "unitPriceFmt", processors: ["roundtwodecimal","format:$%.2f"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalOnly",       processors: ["roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "allQty",      aggregationStrategies: ["sum"], processors: ["tointeger","prefix:QTY_"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetCap",            processors: ["capitalize"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipPrefixed",          processors: ["prefix:ZIP-"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailYN",         processors: ["booleantoyesno"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.productNameLower",     processors: ["lowercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.unitPriceFmt", processors: ["roundtwodecimal","format:$%.2f"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalOnly",       processors: ["roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.allQty",      aggregationStrategies: ["sum"], processors: ["tointeger","prefix:QTY_"] }
   ]
 },
 
@@ -48,13 +48,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP04",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetUpperSuffix",    processors: ["uppercase","suffix: ST"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipHybrid",            processors: ["prefix:ZIP-","suffix:-A"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailSwitch",     processors: ["mapvalue:true=开;false=关"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "productSub5Upper",     processors: ["substring:0,5","uppercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "unitPriceDisc",processors: ["multiplybyten:0.85","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalMoney",      processors: ["money"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "firstQty",   aggregationStrategies: ["first"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetUpperSuffix",    processors: ["uppercase","suffix: ST"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipHybrid",            processors: ["prefix:ZIP-","suffix:-A"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailSwitch",     processors: ["mapvalue:true=开;false=关"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.productSub5Upper",     processors: ["substring:0,5","uppercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.unitPriceDisc",processors: ["multiplybyten:0.85","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalMoney",      processors: ["money"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.firstQty",   aggregationStrategies: ["first"], processors: ["tointeger"] }
   ]
 },
 
@@ -62,13 +62,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP05",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetFmt",            processors: ["format:Street-%s"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipUpper",             processors: ["uppercase"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailBoolCN",    processors: ["booleantoyesno:是,否"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "productSuffix",        processors: ["suffix:_PROD"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "unitPriceIntl",processors: ["roundtwodecimal","format:%,.2f"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalIntl",       processors: ["multiplybyten:1","money"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtySumPref", aggregationStrategies: ["sum"], processors: ["tointeger","prefix:QTY_"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetFmt",            processors: ["format:Street-%s"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipUpper",             processors: ["uppercase"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailBoolCN",    processors: ["booleantoyesno:是,否"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.productSuffix",        processors: ["suffix:_PROD"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.unitPriceIntl",processors: ["roundtwodecimal","format:%,.2f"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalIntl",       processors: ["multiplybyten:1","money"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtySumPref", aggregationStrategies: ["sum"], processors: ["tointeger","prefix:QTY_"] }
   ]
 },
 
@@ -76,13 +76,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP06",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetSnake",          processors: ["lowercase","replace: \\s,_"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipHash",              processors: ["prefix:#"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailYNZH",      processors: ["booleantoyesno:开,关"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodUpperFirst3",      processors: ["substring:0,3","uppercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceWithTax", processors: ["multiplybyten:1.13","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalRound0",     processors: ["roundtwodecimal:0","prefix:￥"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyAvg",     aggregationStrategies: ["average"], processors: ["roundtwodecimal"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetSnake",          processors: ["lowercase","replace: \\s,_"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipHash",              processors: ["prefix:#"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailYNZH",      processors: ["booleantoyesno:开,关"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodUpperFirst3",      processors: ["substring:0,3","uppercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceWithTax", processors: ["multiplybyten:1.13","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalRound0",     processors: ["roundtwodecimal:0","prefix:￥"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyAvg",     aggregationStrategies: ["average"], processors: ["roundtwodecimal"] }
   ]
 },
 
@@ -90,13 +90,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP07",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetCamel",          processors: ["capitalize","replace: \\s,"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipBrackets",          processors: ["format:[%s]"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailText",      processors: ["mapvalue:true=已开启;false=关闭"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodLowerHyphen",      processors: ["lowercase","replace: \\s,-"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "unitPriceCents",processors: ["multiplybyten:100","tointeger"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalFmt",        processors: ["roundtwodecimal","format:Total %.2f$"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyConcat",  aggregationStrategies: ["concat"], processors: ["prefix:Q","suffix:件"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetCamel",          processors: ["capitalize","replace: \\s,"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipBrackets",          processors: ["format:[%s]"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailText",      processors: ["mapvalue:true=已开启;false=关闭"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodLowerHyphen",      processors: ["lowercase","replace: \\s,-"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.unitPriceCents",processors: ["multiplybyten:100","tointeger"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalFmt",        processors: ["roundtwodecimal","format:Total %.2f$"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyConcat",  aggregationStrategies: ["concat"], processors: ["prefix:Q","suffix:件"] }
   ]
 },
 
@@ -104,13 +104,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP08",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetReverse",        processors: ["reverse"] },                 // reverse 处理器需自行实现或替换
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipNoChange" },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailYNEng",    processors: ["booleantoyesno:ON,OFF"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodPrefix",           processors: ["prefix:ITEM-"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceWithUnit",processors: ["roundtwodecimal","suffix: USD"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotal2dec",       processors: ["roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyLast",   aggregationStrategies: ["last"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetReverse",        processors: ["reverse"] },                 // reverse 处理器需自行实现或替换
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipNoChange" },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailYNEng",    processors: ["booleantoyesno:ON,OFF"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodPrefix",           processors: ["prefix:ITEM-"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceWithUnit",processors: ["roundtwodecimal","suffix: USD"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotal2dec",       processors: ["roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyLast",   aggregationStrategies: ["last"], processors: ["tointeger"] }
   ]
 },
 
@@ -118,13 +118,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP09",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetStar",           processors: ["replace: \\s,*"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipMasked",            processors: ["substring:0,3","suffix:***"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailBool",     processors: ["booleantoyesno:TRUE,FALSE"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodUpper",            processors: ["uppercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceScaled", processors: ["multiplybyten:1.5","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalInt",        processors: ["tointeger"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyCount",  aggregationStrategies: ["count"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetStar",           processors: ["replace: \\s,*"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipMasked",            processors: ["substring:0,3","suffix:***"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailBool",     processors: ["booleantoyesno:TRUE,FALSE"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodUpper",            processors: ["uppercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceScaled", processors: ["multiplybyten:1.5","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalInt",        processors: ["tointeger"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyCount",  aggregationStrategies: ["count"] }
   ]
 },
 
@@ -132,13 +132,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP10",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetFmtCN",          processors: ["format:【%s】"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipLower",             processors: ["lowercase"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailMark",     processors: ["prefix:EMAIL_"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodBracket",          processors: ["format:(%s)"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceRound0", processors: ["roundtwodecimal:0"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalSuffix",     processors: ["roundtwodecimal","suffix: 元"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyMin",    aggregationStrategies: ["min"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetFmtCN",          processors: ["format:【%s】"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipLower",             processors: ["lowercase"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailMark",     processors: ["prefix:EMAIL_"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodBracket",          processors: ["format:(%s)"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceRound0", processors: ["roundtwodecimal:0"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalSuffix",     processors: ["roundtwodecimal","suffix: 元"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyMin",    aggregationStrategies: ["min"] }
   ]
 },
 
@@ -146,13 +146,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP11",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetUpper",          processors: ["uppercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipColon",             processors: ["prefix:ZIP:"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailEnabled",  processors: ["mapvalue:true=Enabled;false=Disabled"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodCamel",            processors: ["capitalize","replace: \\s,"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceNeg",   processors: ["multiplybyten:-1","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalAbs",        processors: ["multiplybyten:-1","roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyAbs",    aggregationStrategies: ["sum"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetUpper",          processors: ["uppercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipColon",             processors: ["prefix:ZIP:"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailEnabled",  processors: ["mapvalue:true=Enabled;false=Disabled"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodCamel",            processors: ["capitalize","replace: \\s,"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceNeg",   processors: ["multiplybyten:-1","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalAbs",        processors: ["multiplybyten:-1","roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyAbs",    aggregationStrategies: ["sum"], processors: ["tointeger"] }
   ]
 },
 
@@ -160,13 +160,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP12",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetPad",            processors: ["format:==%s=="] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipPad",               processors: ["format:[[%s]]"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailYN",        processors: ["booleantoyesno:✓,✗"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodRev",              processors: ["substring:0,3","suffix:..."] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceMap",   processors: ["mapvalue:999.49=便宜;other=贵"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalK",          processors: ["multiplybyten:0.001","roundtwodecimal","suffix:k"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyGroup",  aggregationStrategies: ["group"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetPad",            processors: ["format:==%s=="] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipPad",               processors: ["format:[[%s]]"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailYN",        processors: ["booleantoyesno:✓,✗"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodRev",              processors: ["substring:0,3","suffix:..."] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceMap",   processors: ["mapvalue:999.49=便宜;other=贵"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalK",          processors: ["multiplybyten:0.001","roundtwodecimal","suffix:k"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyGroup",  aggregationStrategies: ["group"] }
   ]
 },
 
@@ -174,13 +174,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP13",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetJSON",           processors: ["json"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipFmtUS",             processors: ["format:US-%s"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailBoolFmt",   processors: ["booleantoyesno:Y,N"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodUpperFmt",         processors: ["uppercase","format:\"%s\""] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceCurrency",processors: ["roundtwodecimal","prefix:€"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalFmtEU",      processors: ["roundtwodecimal","format:%,.2f"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyMax",    aggregationStrategies: ["max"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetJSON",           processors: ["json"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipFmtUS",             processors: ["format:US-%s"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailBoolFmt",   processors: ["booleantoyesno:Y,N"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodUpperFmt",         processors: ["uppercase","format:\"%s\""] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceCurrency",processors: ["roundtwodecimal","prefix:€"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalFmtEU",      processors: ["roundtwodecimal","format:%,.2f"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyMax",    aggregationStrategies: ["max"] }
   ]
 },
 
@@ -188,13 +188,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP14",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetDash",           processors: ["replace: \\s,-"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipSpace",             processors: ["replace:-, "] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailTag",      processors: ["prefix:<","suffix:>"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodCapSuffix",        processors: ["capitalize","suffix:_End"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "pricePercent",processors: ["multiplybyten:100","roundtwodecimal","suffix:%"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalPercent",    processors: ["multiplybyten:100","roundtwodecimal","suffix:%"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyJoin",    aggregationStrategies: ["join"], processors: ["prefix:#"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetDash",           processors: ["replace: \\s,-"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipSpace",             processors: ["replace:-, "] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailTag",      processors: ["prefix:<","suffix:>"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodCapSuffix",        processors: ["capitalize","suffix:_End"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.pricePercent",processors: ["multiplybyten:100","roundtwodecimal","suffix:%"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalPercent",    processors: ["multiplybyten:100","roundtwodecimal","suffix:%"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyJoin",    aggregationStrategies: ["join"], processors: ["prefix:#"] }
   ]
 },
 
@@ -202,13 +202,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP15",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetSnakeUp",        processors: ["lowercase","replace: \\s,_","uppercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipSnake",             processors: ["replace:-,_"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailJson",     processors: ["json"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodFmtHash",          processors: ["format:#%s#"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceRnd8",  processors: ["roundtwodecimal:8"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalRnd8",       processors: ["roundtwodecimal:8"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtySub",    aggregationStrategies: ["subtract"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetSnakeUp",        processors: ["lowercase","replace: \\s,_","uppercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipSnake",             processors: ["replace:-,_"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailJson",     processors: ["json"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodFmtHash",          processors: ["format:#%s#"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceRnd8",  processors: ["roundtwodecimal:8"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalRnd8",       processors: ["roundtwodecimal:8"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtySub",    aggregationStrategies: ["subtract"] }
   ]
 },
 
@@ -216,13 +216,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP16",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetTrim",           processors: ["trim"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipTrim",              processors: ["trim"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailTrim",     processors: ["trim"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodTrim",             processors: ["trim"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceTrim",  processors: ["roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalTrim",       processors: ["roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyTrim",   aggregationStrategies: ["count"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetTrim",           processors: ["trim"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipTrim",              processors: ["trim"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailTrim",     processors: ["trim"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodTrim",             processors: ["trim"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceTrim",  processors: ["roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalTrim",       processors: ["roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyTrim",   aggregationStrategies: ["count"] }
   ]
 },
 
@@ -230,13 +230,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP17",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetDup",            processors: ["format:%s-%s"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipPlusOne",           processors: ["tointeger","multiplybyten:1","tointeger"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailYesNoCN", processors: ["booleantoyesno:好,坏"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodYes",              processors: ["mapvalue:Laptop=YES;other=NO"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceMul2",  processors: ["multiplybyten:2","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalHalf",       processors: ["multiplybyten:0.5","roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyFirst",  aggregationStrategies: ["first"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetDup",            processors: ["format:%s-%s"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipPlusOne",           processors: ["tointeger","multiplybyten:1","tointeger"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailYesNoCN", processors: ["booleantoyesno:好,坏"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodYes",              processors: ["mapvalue:Laptop=YES;other=NO"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceMul2",  processors: ["multiplybyten:2","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalHalf",       processors: ["multiplybyten:0.5","roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyFirst",  aggregationStrategies: ["first"] }
   ]
 },
 
@@ -244,13 +244,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP18",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetUsd",            processors: ["prefix:USD_","uppercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipUsd",               processors: ["prefix:USD_"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailRnd",      processors: ["suffix:_RAND"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodUsd",              processors: ["uppercase","prefix:USD-"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceUsd",   processors: ["roundtwodecimal","prefix:$","suffix:USD"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalUsd",        processors: ["prefix:$","roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyUsd",    aggregationStrategies: ["sum"], processors: ["tointeger"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetUsd",            processors: ["prefix:USD_","uppercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipUsd",               processors: ["prefix:USD_"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailRnd",      processors: ["suffix:_RAND"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodUsd",              processors: ["uppercase","prefix:USD-"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceUsd",   processors: ["roundtwodecimal","prefix:$","suffix:USD"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalUsd",        processors: ["prefix:$","roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyUsd",    aggregationStrategies: ["sum"], processors: ["tointeger"] }
   ]
 },
 
@@ -258,13 +258,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP19",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetDashUpper",      processors: ["replace: \\s,-","uppercase"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipLowerPref",         processors: ["lowercase","prefix:zip_"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailBrkt",     processors: ["prefix:[","suffix:]"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodLower",            processors: ["lowercase"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceCalc",  processors: ["multiplybyten:0.78","roundtwodecimal"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalCalc",       processors: ["multiplybyten:0.78","roundtwodecimal"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyLowerJoin",aggregationStrategies: ["join"], processors: ["lowercase"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetDashUpper",      processors: ["replace: \\s,-","uppercase"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipLowerPref",         processors: ["lowercase","prefix:zip_"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailBrkt",     processors: ["prefix:[","suffix:]"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodLower",            processors: ["lowercase"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceCalc",  processors: ["multiplybyten:0.78","roundtwodecimal"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalCalc",       processors: ["multiplybyten:0.78","roundtwodecimal"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyLowerJoin",aggregationStrategies: ["join"], processors: ["lowercase"] }
   ]
 },
 
@@ -272,13 +272,13 @@ db.mapping_rules.insertMany([
 {
   code: "DEEP20",
   mappings: [
-    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "streetPrefSuf",        processors: ["prefix:<<","suffix:>>"] },
-    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "zipFmt",               processors: ["format:%s-000"] },
-    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "emailFmt",      processors: ["format:(%s)"] },
-    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "prodJSON",             processors: ["json"] },
-    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "priceRnd4",  processors: ["roundtwodecimal:4"] },
-    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "orderTotalRnd4",       processors: ["roundtwodecimal:4"] },
-    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "qtyLastPref",aggregationStrategies: ["last"], processors: ["prefix:LAST_"] }
+    { sourcePath: "$.user.profile.contact.address.street",      targetPath: "$.streetPrefSuf",        processors: ["prefix:<<","suffix:>>"] },
+    { sourcePath: "$.user.profile.contact.address.zipcode",     targetPath: "$.zipFmt",               processors: ["format:%s-000"] },
+    { sourcePath: "$.user.profile.preferences.notifications.email", targetPath: "$.emailFmt",      processors: ["format:(%s)"] },
+    { sourcePath: "$.order.details.items[0].product.info.name", targetPath: "$.prodJSON",             processors: ["json"] },
+    { sourcePath: "$.order.details.items[0].product.pricing.unitPrice", targetPath: "$.priceRnd4",  processors: ["roundtwodecimal:4"] },
+    { sourcePath: "$.order.details.totals.amounts.total",       targetPath: "$.orderTotalRnd4",       processors: ["roundtwodecimal:4"] },
+    { sourcePath: "$.order.details.items[*].product.pricing.quantity",  targetPath: "$.qtyLastPref",aggregationStrategies: ["last"], processors: ["prefix:LAST_"] }
   ]
 }
 ]); // insertMany 结束

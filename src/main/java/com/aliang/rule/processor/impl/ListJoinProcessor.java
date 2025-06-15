@@ -75,7 +75,7 @@ public class ListJoinProcessor implements ValueProcessor {
             return "";
         }
 
-        // 默认使用逗号分隔
+        /*  默认使用逗号分隔 */
         return list.stream()
                 .map(item -> item == null ? "" : item.toString())
                 .collect(Collectors.joining(","));
@@ -92,7 +92,7 @@ public class ListJoinProcessor implements ValueProcessor {
             if (value instanceof Object[]) {
                 return Arrays.asList((Object[]) value);
             }
-            // 处理基本类型数组
+            /*  处理基本类型数组 */
             List<Object> result = new ArrayList<>();
             int length = java.lang.reflect.Array.getLength(value);
             for (int i = 0; i < length; i++) {

@@ -19,14 +19,14 @@ import java.util.*;
  * <p>
  * 使用示例：
  * <pre>
- * // 创建产品映射规则
+ * 创建产品映射规则
  * ProductMappingRule rule = new ProductMappingRule("A001");
  *
- * // 添加字段映射规则
+ *  添加字段映射规则
  * rule.addFieldMapping(new FieldMapping("$.user.name", "$.profile.fullName")
  *     .addProcessors(new TrimProcessor()));
  *
- * // 执行映射
+ *  执行映射
  * JSONObject source = JSON.parseObject("{\"user\":{\"name\":\"John\"}}");
  * JSONObject target = JSON.parseObject("{\"profile\":{\"fullName\":\"\"}}");
  * JSONObject result = rule.apply(source, target);

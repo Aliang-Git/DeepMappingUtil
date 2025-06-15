@@ -21,8 +21,8 @@ import java.util.*;
  * <p>
  * 示例2 - URL转换：
  * 配置：lowercase
- * 输入："HTTPS://EXAMPLE.COM"
- * 输出："https://example.com"
+ * 输入："HTTPS: EXAMPLE.COM"
+ * 输出："https: example.com"
  * <p>
  * 示例3 - 混合字符：
  * 配置：lowercase

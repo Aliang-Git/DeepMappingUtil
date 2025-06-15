@@ -85,7 +85,7 @@ public class JsonProcessor implements ValueProcessor {
         }
 
         try {
-            // 默认使用紧凑格式
+            /*  默认使用紧凑格式 */
             return mapper.writeValueAsString(value);
         } catch (Exception e) {
             return null;

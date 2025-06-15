@@ -11,7 +11,7 @@ import java.util.function.*;
  */
 public class ProcessorUtils {
 
-    // 处理 List，支持嵌套结构
+    /*  处理 List，支持嵌套结构 */
     public static List<Object> processList(List<?> list, Function<Object, Object> processor) {
         List<Object> result = new ArrayList<>();
         for (Object item : list) {
@@ -26,14 +26,14 @@ public class ProcessorUtils {
         return result;
     }
 
-    // 改为泛型方法，支持任意类型的 Map
+    /*  改为泛型方法，支持任意类型的 Map */
     public static Object processMap(Map<?, ?> map, Function<Object, Object> processor) {
         Map<String, Object> result = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
 
-            // 确保 key 能转成 String
+            /*  确保 key 能转成 String */
             String stringKey = key != null ? key.toString() : "null";
 
             if (value instanceof List<?>) {

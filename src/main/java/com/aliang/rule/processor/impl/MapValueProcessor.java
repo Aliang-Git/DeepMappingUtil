@@ -59,7 +59,7 @@ public class MapValueProcessor implements ValueProcessor {
             return null;
         }
         String key = value.toString();
-        // 查找映射，如果找不到则返回原值
+        /*  查找映射，如果找不到则返回原值 */
         return mapping.getOrDefault(key, key);
     }
 }

@@ -23,21 +23,21 @@ import java.util.*;
  * <p>
  * 使用示例：
  * <pre>
- * // 创建字段映射规则
+ *  创建字段映射规则
  * FieldMapping mapping = new FieldMapping("$.user.name", "$.profile.fullName", "A001");
  *
- * // 添加处理器
+ *  添加处理器
  * mapping.addProcessors(
- *     new TrimProcessor(),  // 去除空格
- *     new LowercaseProcessor()  // 转小写
+ *     new TrimProcessor(),  去除空格
+ *     new LowercaseProcessor()   转小写
  * );
  *
- * // 添加聚合策略
+ *   添加聚合策略
  * mapping.addAggregationStrategies(
- *     DefaultAggregationStrategies.getStrategy("SUM")  // 求和
+ *     DefaultAggregationStrategies.getStrategy("SUM")    求和
  * );
  *
- * // 执行映射
+ *   执行映射
  * JSONObject source = JSON.parseObject("{\"user\":{\"name\":\"John\"}}");
  * JSONObject target = JSON.parseObject("{\"profile\":{\"fullName\":\"\"}}");
  * mapping.apply(source, target);
@@ -119,14 +119,14 @@ public class FieldMapping {
      * @return 处理后的目标数据
      */
     public void apply(JSONObject source, JSONObject target) {
-        // 获取源值
+        /*  获取源值 */
         Object value = evaluateSourcePath(source, sourcePath);
         logger.logMappingSuccess(sourcePath, targetPath, "Initial value: " + value);
         if (value == null) {
             return;
         }
 
-        // 应用聚合策略
+        /*  应用聚合策略 */
         if (!aggregationStrategies.isEmpty() && value instanceof List) {
             for (AggregationStrategy strategy : aggregationStrategies) {
                 try {
@@ -146,7 +146,7 @@ public class FieldMapping {
             }
         }
 
-        // 应用处理器
+        /*  应用处理器 */
         if (!processors.isEmpty()) {
             for (ValueProcessor processor : processors) {
                 try {
@@ -160,7 +160,7 @@ public class FieldMapping {
             }
         }
 
-        // 设置目标值
+        /*  设置目标值 */
         if (value != null) {
             try {
                 JSONPath.set(target, targetPath, value);

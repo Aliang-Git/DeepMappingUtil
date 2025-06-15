@@ -88,7 +88,7 @@ public class PhoneNumberProcessor implements ValueProcessor {
         try {
             String phoneNumber = value.toString().replaceAll("[^0-9+]", "");
 
-            // 验证手机号格式
+            /*  验证手机号格式 */
             if (!isValidPhoneNumber(phoneNumber)) {
                 logger.logProcessFailure("PhoneNumberProcessor", value, "无效的手机号格式");
                 return value;
@@ -104,27 +104,27 @@ public class PhoneNumberProcessor implements ValueProcessor {
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
-        // 简单的手机号验证：11位数字，或带+86前缀的13位数字
+        /*  简单的手机号验证：11位数字，或带+86前缀的13位数字 */
         return phoneNumber.matches("^\\d{11}$") ||
                 phoneNumber.matches("^\\+86\\d{11}$");
     }
 
     private String formatPhoneNumber(String phoneNumber) {
-        // 去除可能存在的+86前缀
+        /*  去除可能存在的+86前缀 */
         String number = phoneNumber.replaceAll("^\\+86", "");
 
-        // 如果需要掩码处理
+        /*  如果需要掩码处理 */
         if (mask) {
             number = number.substring(0, 3) + "****" + number.substring(7);
         }
 
-        // 根据格式要求处理
+        /*  根据格式要求处理 */
         switch (format) {
             case DASH_FORMAT:
                 return formatWithSeparator(number, "-");
             case SPACE_FORMAT:
                 return formatWithSeparator(number, " ");
-            default: // DEFAULT_FORMAT
+            default: /*  DEFAULT_FORMAT */
                 return formatWithSeparator(number, " ");
         }
     }

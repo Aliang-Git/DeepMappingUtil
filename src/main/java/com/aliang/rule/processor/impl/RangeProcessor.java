@@ -104,14 +104,14 @@ public class RangeProcessor implements ValueProcessor {
                 return value;
             }
 
-            // 检查输入值是否在范围内
+            /*  检查输入值是否在范围内 */
             if (inputValue < min || inputValue > max) {
                 logger.logProcessFailure("RangeProcessor", value,
                         String.format("输入值 %f 超出范围 [%f, %f]", inputValue, min, max));
                 return value;
             }
 
-            // 执行范围映射
+            /*  执行范围映射 */
             double percentage = (inputValue - min) / (max - min);
             double result = targetMin + percentage * (targetMax - targetMin);
 

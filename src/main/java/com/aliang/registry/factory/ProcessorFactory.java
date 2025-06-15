@@ -31,7 +31,7 @@ public class ProcessorFactory {
                 }
             } catch (Exception e) {
                 logger.logProcessorCreationFailure(processorName, e.getMessage());
-                // 继续处理下一个处理器，不阻断流程
+                /*  继续处理下一个处理器，不阻断流程 */
             }
         }
         return processors;

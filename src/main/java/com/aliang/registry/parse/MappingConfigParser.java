@@ -5,16 +5,16 @@ import com.alibaba.fastjson.*;
 import org.slf4j.*;
 
 /**
- * 解析 JSON 配置文件，生成并注册产品映射规则
+ * 解析 JSON 配置，生成并注册产品映射规则
  */
 public class MappingConfigParser {
     private static final Logger logger = LoggerFactory.getLogger(MappingConfigParser.class);
 
     public static void parseAndRegister(JSONObject config, MappingRegistry registry) {
-        // 验证配置
+        /*  验证配置 */
         validateConfig(config);
 
-        // 解析配置并注册到注册表
+        /*  解析配置并注册到注册表 */
         String code = config.getString("code");
         Object mappingsRaw = config.get("mappings");
 
@@ -30,9 +30,8 @@ public class MappingConfigParser {
             for (int i = 0; i < array.size(); i++) {
                 JSONObject mapping = array.getJSONObject(i);
                 String targetPath = mapping.getString("targetPath");
-                String key = deriveKeyFromTargetPath(targetPath, i);
-                sanitizeProcessors(code, key, mapping);
-                registry.registerMapping(code, key, mapping);
+                sanitizeProcessors(code, targetPath, mapping);
+                registry.registerMapping(code, targetPath, mapping);
             }
         } else {
             throw new IllegalArgumentException("mappings 必须是对象或数组");
@@ -74,24 +73,5 @@ public class MappingConfigParser {
                 }
             }
         }
-    }
-
-    private static String deriveKeyFromTargetPath(String targetPath, int index) {
-        if (targetPath == null || targetPath.isEmpty()) {
-            return "mapping_" + index;
-        }
-        // 去掉开头的"$."  或 "$" 或"."
-        if (targetPath.startsWith("$")) {
-            targetPath = targetPath.substring(1);
-        }
-        if (targetPath.startsWith(".")) {
-            targetPath = targetPath.substring(1);
-        }
-        // 只取第一个字段名称
-        int dot = targetPath.indexOf('.');
-        if (dot != -1) {
-            targetPath = targetPath.substring(0, dot);
-        }
-        return targetPath.isEmpty() ? "mapping_" + index : targetPath;
     }
 }

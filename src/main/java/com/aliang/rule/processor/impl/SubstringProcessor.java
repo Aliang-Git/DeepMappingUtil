@@ -97,7 +97,7 @@ public class SubstringProcessor implements ValueProcessor {
             return null;
         }
 
-        // 如果是集合或 Map，递归处理其内部元素
+        /*  如果是集合或 Map，递归处理其内部元素 */
         if (value instanceof java.util.Collection<?> || value instanceof java.util.Map<?, ?>) {
             return ProcessorUtils.processCollection(value, this);
         }

@@ -13,13 +13,13 @@ public class ComplexProductMappingTest {
 
     @Before
     public void setUp() {
-        // 使用内存MongoDB进行测试
+        /*  使用内存MongoDB进行测试 */
         mappingService = new ProductMappingService(
                 "mongodb://localhost:27017",
                 "test_db",
                 "mapping_configs"
         ) {
-            // 重写getMappingConfigFromMongo方法，模拟从MongoDB获取配置
+            /*  重写getMappingConfigFromMongo方法，模拟从MongoDB获取配置 */
             @Override
             protected JSONObject getMappingConfigFromMongo(String productCode) {
                 if ("P001".equals(productCode)) {
@@ -38,7 +38,7 @@ public class ComplexProductMappingTest {
                             "    },\n" +
                             "    {\n" +
                             "      \"sourcePath\": \"$.basicInfo.category\",\n" +
-                            "      \"targetPath\": \"$.categoryName\",\n" +
+                            "      \"targetPath\": \"$.categoryName.category\",\n" +
                             "      \"processors\": [\"uppercase\"]\n" +
                             "    },\n" +
                             "    {\n" +
@@ -140,13 +140,13 @@ public class ComplexProductMappingTest {
     @Test
     public void testAllProducts() {
         testProduct1();
-        // 后续添加其他产品的测试方法
+        /*  后续添加其他产品的测试方法 */
     }
 
     private void testProduct1() {
         logger.info("测试产品1的映射转换");
 
-        // 源数据（模拟MongoDB数据）
+        /*  源数据（模拟MongoDB数据） */
         String sourceJson = "{\n" +
                 "  \"_id\": \"product1\",\n" +
                 "  \"basicInfo\": {\n" +
@@ -196,22 +196,22 @@ public class ComplexProductMappingTest {
                 "  }\n" +
                 "}";
 
-        // 目标模板
+        /*  目标模板 */
         String targetTemplateJson = "{}";
 
-        // 执行映射
+        /*  执行映射 */
         JSONObject source = JSON.parseObject(sourceJson);
         JSONObject targetTemplate = JSON.parseObject(targetTemplateJson);
         JSONObject result = mappingService.processMapping("P001", source, targetTemplate);
 
-        // 验证结果
+        /*  验证结果 */
         logger.info("映射结果: {}", JSON.toJSONString(result, true));
-
-        // 添加断言
+        String resultJson = result.toJSONString();
+        /*  添加断言 */
         assertNotNull(result);
         assertEquals("PRODUCT_测试商品1", result.getString("productName"));
         assertEquals("CODE_P001", result.getString("productCode"));
-        assertEquals("电子产品", result.getString("categoryName"));
+        assertEquals("电子产品", JSONPath.read(resultJson, "$.categoryName.category"));
         assertEquals("是", result.getString("status"));
         assertEquals("2024年03月21日 10:00:00", result.getString("createTime"));
         assertEquals("800.45424000", result.getString("price"));

@@ -79,7 +79,7 @@ public class MinAggregationStrategy implements AggregationStrategy {
                     min = current;
                 }
             } catch (NumberFormatException ignored) {
-                // 忽略无法转换的值
+                /*  忽略无法转换的值 */
             }
         }
 

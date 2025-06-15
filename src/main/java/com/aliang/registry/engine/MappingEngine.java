@@ -23,18 +23,18 @@ import java.util.*;
  * <p>
  * 使用示例：
  * <pre>
- * // 创建映射注册中心
+ *   创建映射注册中心
  * MappingRegistry registry = new MappingRegistry();
  *
- * // 注册产品映射规则
+ *   注册产品映射规则
  * ProductMappingRule rule = new ProductMappingRule("A001");
  * rule.addFieldMapping(new FieldMapping("$.user.name", "$.profile.fullName"));
  * registry.register(rule);
  *
- * // 创建映射引擎
+ *  创建映射引擎
  * MappingEngine engine = new MappingEngine(registry);
  *
- * // 执行映射
+ *   执行映射
  * JSONObject source = JSON.parseObject("{\"user\":{\"name\":\"John\"}}");
  * JSONObject target = JSON.parseObject("{\"profile\":{\"fullName\":\"\"}}");
  * JSONObject result = engine.map(source, target, "A001");
@@ -70,21 +70,21 @@ public class MappingEngine {
      */
     public JSONObject executeMapping(String code, JSONObject source, JSONObject targetTemplate) {
         try {
-            // 获取映射规则
+            /*  获取映射规则 */
             Map<String, JSONObject> mappings = registry.getMappings(code);
             if (mappings == null || mappings.isEmpty()) {
                 throw new IllegalArgumentException("未找到映射规则: " + code);
             }
 
-            // 创建结果对象
+            /*  创建结果对象 */
             JSONObject result = new JSONObject(targetTemplate);
 
-            // 执行每个字段的映射
+            /*  执行每个字段的映射 */
             for (Map.Entry<String, JSONObject> entry : mappings.entrySet()) {
                 String targetPath = entry.getKey();
                 JSONObject mapping = entry.getValue();
 
-                // 获取源路径和值
+                /*  获取源路径和值 */
                 String sourcePath = mapping.getString("sourcePath");
                 Object value = evaluateSourcePath(source, sourcePath);
 
@@ -93,7 +93,8 @@ public class MappingEngine {
 
                 boolean aggregateFirst = shouldAggregateFirst(aggregations);
 
-                if (aggregateFirst && aggregations != null) {
+                /* 兼容：先转换再聚合的场景 */
+                if (aggregateFirst) {
                     value = applyAggregationStrategies(value, aggregations);
                 }
                 if (processors != null) {
@@ -103,14 +104,23 @@ public class MappingEngine {
                     value = applyAggregationStrategies(value, aggregations);
                 }
 
-                // 设置结果
-                result.put(targetPath, value);
+                /*  设置结果 */
+                setTargetPathValue(result, targetPath, value);
             }
 
             return result;
         } catch (Exception e) {
             logger.error("执行映射失败 - code: {}, 错误: {}", code, e.getMessage());
             throw new RuntimeException("执行映射失败", e);
+        }
+    }
+
+    private void setTargetPathValue(JSONObject result, String targetPath, Object value) {
+        try {
+            JSONPath.set(result, targetPath, value);
+        } catch (Exception e) {
+            logger.error("设置目标路径失败 - path: {}, 错误: {}", targetPath, e.getMessage());
+            throw new RuntimeException("设置目标路径失败 ", e);
         }
     }
 
@@ -225,12 +235,6 @@ public class MappingEngine {
         if (aggregations == null || aggregations.isEmpty()) {
             return false;
         }
-        // Determine execution order based on the aggregation strategy type.
-        // For textual aggregations like "join" or "concat", we want to run processors FIRST so
-        // that element-level processors (e.g. prefix/suffix) act on individual items before they
-        // are combined into a single String. For numeric/statistical aggregations we aggregate
-        // first and then let processors (rounding, formatting …) post-process the aggregated
-        // value.
         for (int i = 0; i < aggregations.size(); i++) {
             String spec = aggregations.getString(i);
             if (spec == null || spec.isEmpty()) {
@@ -238,11 +242,9 @@ public class MappingEngine {
             }
             String strategyName = spec.split(":", 2)[0].trim().toLowerCase();
             if ("join".equals(strategyName) || "concat".equals(strategyName)) {
-                // Processors should run FIRST, so we must aggregate LAST
                 return false;
             }
         }
-        // Default behaviour: aggregate before running processors
         return true;
     }
 }

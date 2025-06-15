@@ -75,17 +75,17 @@ public class IdCardProcessor implements ValueProcessor {
 
         String idCard = value.toString().replaceAll("[^0-9Xx]", "");
 
-        // 验证身份证号
+        /*  验证身份证号 */
         if (!isValidIdCard(idCard)) {
             return null;
         }
 
-        // 分割身份证号
+        /*  分割身份证号 */
         String area = idCard.substring(0, 6);
         String birth = idCard.substring(6, 14);
         String sequence = idCard.substring(14);
 
-        // 默认不掩码
+        /*  默认不掩码 */
         return area + " " + birth + " " + sequence;
     }
 
@@ -94,7 +94,7 @@ public class IdCardProcessor implements ValueProcessor {
             return false;
         }
 
-        // 简单校验，实际使用时应该添加更严格的校验
+        /*  简单校验，实际使用时应该添加更严格的校验 */
         return idCard.matches("^[1-9]\\d{5}(18|19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[0-9Xx]$");
     }
 } 

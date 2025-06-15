@@ -95,9 +95,9 @@ public class DateFormatProcessor implements ValueProcessor {
         try {
             if (value instanceof String) {
                 String dateStr = (String) value;
-                // 尝试多种格式解析输入日期字符串
+                /*  尝试多种格式解析输入日期字符串 */
                 Date date = parseDate(dateStr);
-                // 使用指定的格式输出
+                /*  使用指定的格式输出 */
                 SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
                 return outputFormat.format(date);
             }
@@ -112,7 +112,7 @@ public class DateFormatProcessor implements ValueProcessor {
         for (String inputPattern : INPUT_PATTERNS) {
             try {
                 SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
-                inputFormat.setLenient(false);  // 严格模式
+                inputFormat.setLenient(false);  /*  严格模式 */
                 return inputFormat.parse(dateStr);
             } catch (ParseException e) {
                 lastException = e;
@@ -128,17 +128,17 @@ public class DateFormatProcessor implements ValueProcessor {
 
     private String tryParseAndFormat(String strValue) {
         try {
-            // 尝试解析 ISO 8601 格式时间字符串
+            /*  尝试解析 ISO 8601 格式时间字符串 */
             Date date = parseISO8601(strValue);
             return formatDate(date);
         } catch (Exception e) {
-            // 不是时间字符串就忽略
+            /*  不是时间字符串就忽略 */
             return strValue;
         }
     }
 
     private Date parseISO8601(String str) throws ParseException {
-        // 支持 "2023-08-15T14:30:00Z" 这种格式
+        /*  支持 "2023-08-15T14:30:00Z" 这种格式 */
         if (str.length() == 20 && str.endsWith("Z")) {
             return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(str);
         } else if (str.contains("T")) {

@@ -17,16 +17,16 @@ public class ProductMappingService extends BaseMappingService {
     @Override
     public JSONObject processMapping(String productCode, JSONObject source, JSONObject targetTemplate) {
         try {
-            // 获取映射配置
+            /*  获取映射配置 */
             JSONObject mappingConfig = getMappingConfigFromMongo(productCode);
             if (mappingConfig == null) {
                 throw new IllegalArgumentException("未找到产品映射配置: " + productCode);
             }
 
-            // 解析并注册配置
+            /*  解析并注册配置 */
             MappingConfigParser.parseAndRegister(mappingConfig, mappingRegistry);
 
-            // 执行映射
+            /*  执行映射 */
             return engine.executeMapping(productCode, source, targetTemplate);
         } catch (Exception e) {
             logger.error("映射处理失败 - 产品编码: {}, 错误: {}", productCode, e.getMessage());

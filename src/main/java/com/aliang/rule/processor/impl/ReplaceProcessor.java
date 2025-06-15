@@ -98,7 +98,7 @@ public class ReplaceProcessor implements ValueProcessor {
             String result = strValue.replace(target, replacement);
             if (result.equals(strValue)) {
                 logger.logProcessSuccess("ReplaceProcessor", value, result);
-                return value; // 如果没有发生替换，返回原值
+                return value; /*  如果没有发生替换，返回原值 */
             }
 
             logger.logProcessSuccess("ReplaceProcessor", value, result);

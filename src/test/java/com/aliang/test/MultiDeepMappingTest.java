@@ -22,7 +22,7 @@ public class MultiDeepMappingTest {
 
     @Before
     public void setUp() {
-        // 连接本地 MongoDB。若端口/地址不同请自行修改。
+        /*  连接本地 MongoDB。若端口/地址不同请自行修改。 */
         mappingService = new ProductMappingService(
                 "mongodb://localhost:27017",
                 "config",
@@ -88,6 +88,7 @@ public class MultiDeepMappingTest {
 
     @Test
     public void testDeepMappings() {
+        long start = System.currentTimeMillis();
         List<String> codes = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
             codes.add(String.format("DEEP%02d", i));
@@ -103,5 +104,6 @@ public class MultiDeepMappingTest {
                 fail("处理 " + code + " 失败: " + e.getMessage());
             }
         }
+        System.out.println("当前耗时: " + (System.currentTimeMillis() - start));
     }
 } 

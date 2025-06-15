@@ -83,7 +83,7 @@ public class MoneyProcessor implements ValueProcessor {
             BigDecimal amount = new BigDecimal(value.toString())
                     .setScale(2, RoundingMode.HALF_UP);
 
-            // 默认使用人民币标准格式
+            /*  默认使用人民币标准格式 */
             DecimalFormat formatter = new DecimalFormat("¥#,##0.00");
             return formatter.format(amount);
 
