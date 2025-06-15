@@ -93,7 +93,7 @@ public class DeepNestedMappingTest {
         public ProductMappingService mappingService() {
             return new ProductMappingService() {
                 @Override
-                protected JSONObject getMappingConfigFromMongo(String productCode) {
+                public JSONObject getMappingConfigFromMongo(String productCode) {
                     if ("DEEP01".equals(productCode)) {
                         return JSON.parseObject("{\n" +
                                 "  \"code\": \"DEEP01\",\n" +

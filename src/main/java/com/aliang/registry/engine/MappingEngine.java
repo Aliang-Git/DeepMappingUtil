@@ -77,7 +77,7 @@ public class MappingEngine {
             }
 
             /*  创建结果对象 */
-            JSONObject result = new JSONObject(targetTemplate);
+            JSONObject result = new JSONObject();
 
             /*  执行每个字段的映射 */
             for (Map.Entry<String, JSONObject> entry : mappings.entrySet()) {
@@ -211,7 +211,7 @@ public class MappingEngine {
     }
 
     private Object applyProcessors(Object value, JSONArray processors) {
-        if (value == null || processors == null || processors.isEmpty()) {
+        if (processors == null || processors.isEmpty()) {
             return value;
         }
 
@@ -219,17 +219,20 @@ public class MappingEngine {
         for (int i = 0; i < processors.size(); i++) {
             String processorSpec = processors.getString(i);
             String[] parts = processorSpec.split(":", 2);
-            String processorName = parts[0];
+            String processorName = parts[0].toLowerCase();
             String params = parts.length > 1 ? parts[1] : null;
 
             ValueProcessor processor = processorFactory.createProcessor(processorName, params);
             if (processor != null) {
                 try {
                     result = processor.doProcess(result);
-                    logger.debug("处理器执行成功 - processor: {}, input: {}, output: {}", processorName, value, result);
                 } catch (Exception e) {
-                    logger.error("处理器执行失败 - processor: {}, input: {}, error: {}", processorName, value, e.getMessage());
+                    logger.error("处理器执行失败 - processor: {}, value: {}, 错误: {}", processorName, value, e.getMessage());
+                    throw new RuntimeException("处理器执行失败", e);
                 }
+            } else {
+                logger.error("创建处理器失败 - processor: {}, params: {}", processorName, params);
+                throw new IllegalArgumentException("创建处理器失败: " + processorName);
             }
         }
         return result;
@@ -282,8 +285,6 @@ public class MappingEngine {
                 String delimiter = joinParams.getOrDefault("delimiter", ",");
                 boolean keepArrayFormat = Boolean.parseBoolean(joinParams.getOrDefault("keepArrayFormat", "false"));
                 return new JoinAggregationStrategy(delimiter, keepArrayFormat);
-            case "group":
-                return new GroupAggregationStrategy();
             case "subtract":
                 return new SubtractAggregationStrategy();
             case "concat":

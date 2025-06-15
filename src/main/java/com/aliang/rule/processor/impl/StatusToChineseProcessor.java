@@ -6,8 +6,8 @@ import com.aliang.utils.*;
 import java.util.*;
 
 /**
- * 状态码转中文处理器
- * 将系统状态码转换为对应的中文描述
+ * 状态转中文处理器
+ * 将状态码转换为对应的中文描述
  * <p>
  * 配置格式：statusToChinese[:自定义映射]
  * 自定义映射格式：状态码1=中文1;状态码2=中文2
@@ -52,27 +52,35 @@ import java.util.*;
  * 4. 未匹配的状态码将返回原值
  * 5. 状态码大小写敏感
  */
-public class StatusToChineseProcessor implements ValueProcessor {
-    @Override
-    public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
-        }
-        if (value instanceof String) {
-            String status = (String) value;
-            switch (status.toLowerCase()) {
-                case "pending":
-                    return "待处理";
-                case "processing":
-                    return "处理中";
-                case "completed":
-                    return "已完成";
-                case "cancelled":
-                    return "已取消";
-                default:
-                    return status;
+public class StatusToChineseProcessor extends AbstractProcessor {
+    private final Map<String, String> statusMap;
+
+    public StatusToChineseProcessor(String config) {
+        super("StatusToChineseProcessor");
+        this.statusMap = new HashMap<>();
+        if (config != null && !config.isEmpty()) {
+            String[] pairs = config.split(",");
+            for (String pair : pairs) {
+                String[] keyValue = pair.split(":");
+                if (keyValue.length == 2) {
+                    statusMap.put(keyValue[0], keyValue[1]);
+                }
             }
         }
-        return value;
+        ProcessorUtils.logProcessResult(processorName, null,
+                String.format("状态映射: %s", statusMap), null);
+    }
+
+    @Override
+    protected Object processValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        String status = value.toString();
+        String result = statusMap.getOrDefault(status, status);
+
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 }

@@ -3,11 +3,9 @@ package com.aliang.rule.processor.impl;
 import com.aliang.rule.processor.*;
 import com.aliang.utils.*;
 
-import java.util.*;
-
 /**
  * 后缀处理器
- * 在字符串后添加指定的后缀
+ * 在输入值后添加指定的后缀
  * <p>
  * 配置格式：suffix:后缀字符串
  * <p>
@@ -59,18 +57,19 @@ import java.util.*;
  * 4. 非字符串类型的输入将被转换为字符串后处理
  * 5. 如果输入为null，则直接返回null
  */
-public class SuffixProcessor implements ValueProcessor {
+public class SuffixProcessor extends AbstractProcessor {
     private final String suffix;
 
     public SuffixProcessor(String suffix) {
-        this.suffix = suffix;
+        super("SuffixProcessor");
+        this.suffix = suffix != null ? suffix : "";
+        ProcessorUtils.logProcessResult(processorName, null, "后缀: " + this.suffix, null);
     }
 
     @Override
-    public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
-        }
-        return value.toString() + suffix;
+    protected Object processValue(Object value) {
+        String result = value + suffix;
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 } 

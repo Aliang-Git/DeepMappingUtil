@@ -47,28 +47,16 @@ public class ProcessorFactory {
                     return new MultiplyByTenProcessor(params);
                 case "roundtwodecimal":
                     logger.logProcessorInit("RoundTwoDecimalProcessor", params);
-                    return params != null && !params.isEmpty() ?
-                            new RoundTwoDecimalProcessor(params) :
-                            new RoundTwoDecimalProcessor();
+                    return new RoundTwoDecimalProcessor(params);
                 case "dateformat":
                     logger.logProcessorInit("DateFormatProcessor", params);
                     return new DateFormatProcessor(params);
                 case "discount":
-                    if (params == null) {
-                        logger.logProcessorParamError("DiscountProcessor", "折扣处理器需要折扣率参数");
-                        return null;
-                    }
-                    try {
-                        double discountRate = Double.parseDouble(params);
-                        logger.logProcessorInit("DiscountProcessor", params);
-                        return new DiscountProcessor(discountRate);
-                    } catch (NumberFormatException e) {
-                        logger.logProcessorParamError("DiscountProcessor", "折扣率参数必须是有效的数字: " + params);
-                        return null;
-                    }
+                    logger.logProcessorInit("DiscountProcessor", params);
+                    return new DiscountProcessor(params);
                 case "mapvalue":
                     logger.logProcessorInit("MapValueProcessor", params);
-                    return new MapValueProcessor(getStringStringMap(params));
+                    return new MapValueProcessor(params);
                 case "booleantoyesno":
                     logger.logProcessorInit("BooleanToYesNoProcessor", params);
                     return new BooleanToYesNoProcessor(params);
@@ -86,11 +74,6 @@ public class ProcessorFactory {
                         logger.logProcessorParamError("ReplaceProcessor", "替换处理器需要目标字符串和替换字符串参数");
                         return null;
                     }
-                    String[] replaceParams = params.split(",");
-                    if (replaceParams.length != 2) {
-                        logger.logProcessorParamError("ReplaceProcessor", "替换处理器参数格式应为：target,replacement");
-                        return null;
-                    }
                     logger.logProcessorInit("ReplaceProcessor", params);
                     return new ReplaceProcessor(params);
                 case "format":
@@ -98,19 +81,19 @@ public class ProcessorFactory {
                     return new FormatProcessor(params);
                 case "tointeger":
                     logger.logProcessorInit("ToIntegerProcessor", params);
-                    return new ToIntegerProcessor();
+                    return new ToIntegerProcessor(params);
                 case "money":
                     logger.logProcessorInit("MoneyProcessor", params);
-                    return new MoneyProcessor();
+                    return new MoneyProcessor(params);
                 case "phone":
                     logger.logProcessorInit("PhoneNumberProcessor", params);
-                    return new PhoneNumberProcessor();
+                    return new PhoneNumberProcessor(params);
                 case "json":
                     logger.logProcessorInit("JsonProcessor", params);
                     return new JsonProcessor();
                 case "reverse":
                     logger.logProcessorInit("ReverseProcessor", params);
-                    return new ReverseProcessor();
+                    return new ReverseProcessor(params);
                 case "trim":
                     logger.logProcessorInit("TrimProcessor", params);
                     return new TrimProcessor();

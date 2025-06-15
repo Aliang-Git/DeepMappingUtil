@@ -33,6 +33,13 @@ public abstract class BaseMappingService {
         this.processorFactory = new ProcessorFactory();
     }
 
+    /**
+     * 从MongoDB获取映射配置
+     * 子类可以覆盖此方法以提供自定义的配置获取逻辑
+     *
+     * @param code 产品编码
+     * @return 映射配置
+     */
     protected JSONObject getMappingConfigFromMongo(String code) {
         try {
             Query query = new Query(Criteria.where("code").is(code));
@@ -47,5 +54,14 @@ public abstract class BaseMappingService {
         }
     }
 
+    /**
+     * 处理映射
+     * 子类必须实现此方法以提供具体的映射处理逻辑
+     *
+     * @param code           产品编码
+     * @param source         源数据
+     * @param targetTemplate 目标模板
+     * @return 处理后的数据
+     */
     public abstract Map<String, Object> processMapping(String code, Map<String, Object> source, Map<String, Object> targetTemplate);
 } 

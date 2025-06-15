@@ -1,10 +1,13 @@
 package com.aliang.rule.processor.impl;
 
 import com.aliang.rule.processor.*;
+import com.aliang.utils.*;
+
+import java.math.*;
 
 /**
  * 折扣处理器
- * 对数值应用折扣率进行计算
+ * 将输入金额按照指定的折扣率计算
  * <p>
  * 配置格式：discount:折扣率
  * 折扣率范围：0-1之间的小数，1表示不打折，0表示免费
@@ -41,27 +44,39 @@ import com.aliang.rule.processor.*;
  * 4. 非数值类型的输入将被忽略并返回原值
  * 5. 结果会保留原值的精度
  */
-public class DiscountProcessor implements ValueProcessor {
-    private final double discountRate;
+public class DiscountProcessor extends AbstractProcessor {
+    private final BigDecimal discountRate;
 
-    public DiscountProcessor(double discountRate) {
-        this.discountRate = discountRate;
+    public DiscountProcessor(String config) {
+        super("DiscountProcessor");
+        this.discountRate = new BigDecimal(config != null ? config : "1.0");
+        ProcessorUtils.logProcessResult(processorName, null,
+                String.format("折扣率: %s", discountRate), null);
     }
 
     @Override
-    public Object doProcess(Object value) {
+    protected Object processValue(Object value) {
         if (value == null) {
-            return null; /*  空值直接返回 */
+            return null;
         }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue() * discountRate;
-        }
+
         try {
-            /*  尝试将字符串转为 double */
-            double number = Double.parseDouble(value.toString());
-            return number * discountRate;
+            BigDecimal amount;
+            if (value instanceof Number) {
+                amount = new BigDecimal(value.toString());
+            } else if (value instanceof String) {
+                amount = new BigDecimal((String) value);
+            } else {
+                return value;
+            }
+
+            BigDecimal result = amount.multiply(discountRate)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            ProcessorUtils.logProcessResult(processorName, value, result, null);
+            return result;
         } catch (NumberFormatException e) {
-            /*  无法转换为数字时返回原值，而不是抛异常 */
+            ProcessorUtils.logProcessResult(processorName, value, value, e.getMessage());
             return value;
         }
     }

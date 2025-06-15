@@ -7,7 +7,7 @@ package com.aliang.rule.processor;
 public interface ValueProcessor {
 
     /**
-     * 实际的处理逻辑
+     * 处理输入值
      * 子类必须实现这个方法来提供具体的处理逻辑
      *
      * @param value 要处理的值

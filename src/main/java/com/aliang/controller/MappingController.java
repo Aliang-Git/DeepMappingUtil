@@ -15,6 +15,9 @@ public class MappingController {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Value("${your.collection.name}")
+    private String collectionName;
+
     @PostMapping("/process")
     public MappingResultVO process(@RequestParam String code,
                                    @RequestBody MappingProcessDTO body) {
@@ -27,13 +30,13 @@ public class MappingController {
     @GetMapping("/rule/{code}")
     public MappingRulePO getRule(@PathVariable String code) {
         Query query = new Query(Criteria.where("code").is(code));
-        return mongoTemplate.findOne(query, MappingRulePO.class, "mapping_rules");
+        return mongoTemplate.findOne(query, MappingRulePO.class, collectionName);
     }
 
     // 新增映射规则
     @PostMapping("/rule")
     public String addRule(@RequestBody MappingRulePO rule) {
-        mongoTemplate.insert(rule, "mapping_rules");
+        mongoTemplate.insert(rule, collectionName);
         return "success";
     }
 
@@ -43,7 +46,7 @@ public class MappingController {
         Query query = new Query(Criteria.where("code").is(code));
         Update update = new Update();
         update.set("mappings", rule.getMappings());
-        mongoTemplate.upsert(query, update, "mapping_rules");
+        mongoTemplate.upsert(query, update, collectionName);
         return "success";
     }
 
@@ -51,7 +54,7 @@ public class MappingController {
     @DeleteMapping("/rule/{code}")
     public String deleteRule(@PathVariable String code) {
         Query query = new Query(Criteria.where("code").is(code));
-        mongoTemplate.remove(query, "mapping_rules");
+        mongoTemplate.remove(query, collectionName);
         return "success";
     }
 } 

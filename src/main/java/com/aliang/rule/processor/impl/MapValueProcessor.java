@@ -6,8 +6,8 @@ import com.aliang.utils.*;
 import java.util.*;
 
 /**
- * 值映射处理器
- * 将输入值映射到预定义的目标值
+ * 映射值处理器
+ * 根据映射表将输入值转换为对应的输出值
  * <p>
  * 配置格式：mapvalue:key1=value1;key2=value2;key3=value3
  * <p>
@@ -43,23 +43,36 @@ import java.util.*;
  * 4. 支持数组和集合类型的批量转换
  * 5. 键和值都支持任意字符串，包括中文
  */
-public class MapValueProcessor implements ValueProcessor {
+public class MapValueProcessor extends AbstractProcessor {
     private final Map<String, String> mapping;
 
-    public MapValueProcessor(Map<String, String> mapping) {
-        this.mapping = mapping;
+    public MapValueProcessor(String config) {
+        super("MapValueProcessor");
+        this.mapping = parseMappingConfig(config);
+        ProcessorUtils.logProcessResult(processorName, null, "映射表: " + mapping, null);
+    }
+
+    private Map<String, String> parseMappingConfig(String config) {
+        Map<String, String> map = new HashMap<>();
+        if (config != null && !config.trim().isEmpty()) {
+            String[] pairs = config.split(";");
+            for (String pair : pairs) {
+                String[] keyValue = pair.split("=");
+                if (keyValue.length == 2) {
+                    map.put(keyValue[0], keyValue[1]);
+                } else {
+                    ProcessorUtils.logProcessResult(processorName, pair, null, "无效的键值对格式");
+                }
+            }
+        }
+        return map;
     }
 
     @Override
-    public Object doProcess(Object value) {
-        if (value instanceof List<?> || value instanceof Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this::doProcess);
-        }
-        if (value == null) {
-            return null;
-        }
+    protected Object processValue(Object value) {
         String key = value.toString();
-        /*  查找映射，如果找不到则返回原值 */
-        return mapping.getOrDefault(key, key);
+        String result = mapping.getOrDefault(key, key);
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 }

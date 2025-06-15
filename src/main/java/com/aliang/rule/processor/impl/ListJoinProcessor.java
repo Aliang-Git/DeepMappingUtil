@@ -1,13 +1,14 @@
 package com.aliang.rule.processor.impl;
 
 import com.aliang.rule.processor.*;
+import com.aliang.utils.*;
 
 import java.util.*;
 import java.util.stream.*;
 
 /**
  * 列表连接处理器
- * 将列表元素使用指定分隔符连接成字符串
+ * 将列表中的元素使用指定的分隔符连接成字符串
  * <p>
  * 配置格式：join:separator,prefix,suffix
  * separator: 分隔符
@@ -59,47 +60,34 @@ import java.util.stream.*;
  * 4. 非集合类型输入将被转换为字符串直接返回
  * 5. null输入将返回null
  */
-public class ListJoinProcessor implements ValueProcessor {
-    @Override
-    public Object doProcess(Object value) {
-        if (value == null) {
-            return null;
-        }
+public class ListJoinProcessor extends AbstractProcessor {
+    private final String delimiter;
+    private final String prefix;
+    private final String suffix;
 
-        if (!(value instanceof Collection || value.getClass().isArray())) {
-            return value.toString();
-        }
-
-        List<?> list = convertToList(value);
-        if (list.isEmpty()) {
-            return "";
-        }
-
-        /*  默认使用逗号分隔 */
-        return list.stream()
-                .map(item -> item == null ? "" : item.toString())
-                .collect(Collectors.joining(","));
+    public ListJoinProcessor(String config) {
+        super("ListJoinProcessor");
+        String[] parts = config != null ? config.split(":") : new String[0];
+        this.delimiter = parts.length > 0 ? parts[0] : ",";
+        this.prefix = parts.length > 1 ? parts[1] : "";
+        this.suffix = parts.length > 2 ? parts[2] : "";
+        ProcessorUtils.logProcessResult(processorName, null,
+                String.format("连接配置: 分隔符='%s', 前缀='%s', 后缀='%s'",
+                        delimiter, prefix, suffix), null);
     }
 
-    private List<?> convertToList(Object value) {
-        if (value instanceof List) {
-            return (List<?>) value;
+    @Override
+    protected Object processValue(Object value) {
+        if (!(value instanceof Collection<?>)) {
+            return value;
         }
-        if (value instanceof Collection) {
-            return new ArrayList<>((Collection<?>) value);
-        }
-        if (value.getClass().isArray()) {
-            if (value instanceof Object[]) {
-                return Arrays.asList((Object[]) value);
-            }
-            /*  处理基本类型数组 */
-            List<Object> result = new ArrayList<>();
-            int length = java.lang.reflect.Array.getLength(value);
-            for (int i = 0; i < length; i++) {
-                result.add(java.lang.reflect.Array.get(value, i));
-            }
-            return result;
-        }
-        return Collections.singletonList(value);
+
+        Collection<?> collection = (Collection<?>) value;
+        String result = collection.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(delimiter, prefix, suffix));
+
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 } 

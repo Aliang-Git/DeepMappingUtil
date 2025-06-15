@@ -1,7 +1,10 @@
 package com.aliang.utils;
 
+import com.aliang.logger.*;
+import com.aliang.logger.impl.*;
 import com.aliang.rule.processor.*;
 
+import java.math.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -10,6 +13,7 @@ import java.util.function.*;
  * 提供处理集合类型的通用方法
  */
 public class ProcessorUtils {
+    private static final ProcessorLogger logger = new DefaultProcessorLogger();
 
     /*  处理 List，支持嵌套结构 */
     public static List<Object> processList(List<?> list, Function<Object, Object> processor) {
@@ -76,6 +80,54 @@ public class ProcessorUtils {
             return result;
         }
         return processor.doProcess(value);
+    }
+
+    /**
+     * 记录处理器处理结果
+     *
+     * @param processorName 处理器名称
+     * @param input         输入值
+     * @param output        输出值
+     * @param error         错误信息（如果有）
+     */
+    public static void logProcessResult(String processorName, Object input, Object output, String error) {
+        if (error != null) {
+            logger.logProcessFailure(processorName, input, error);
+        } else {
+            logger.logProcessSuccess(processorName, input, output);
+        }
+    }
+
+    /**
+     * 安全地转换字符串为数字
+     *
+     * @param value 要转换的值
+     * @return 转换后的数字，如果转换失败则返回null
+     */
+    public static BigDecimal safeParseNumber(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            if (value instanceof Number) {
+                return new BigDecimal(value.toString());
+            }
+            String strValue = value.toString().replaceAll("[^\\d.-]", "");
+            return new BigDecimal(strValue);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 安全地转换字符串为整数
+     *
+     * @param value 要转换的值
+     * @return 转换后的整数，如果转换失败则返回null
+     */
+    public static Integer safeParseInteger(Object value) {
+        BigDecimal number = safeParseNumber(value);
+        return number != null ? number.intValue() : null;
     }
 }
 

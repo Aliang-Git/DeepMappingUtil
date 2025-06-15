@@ -1,14 +1,11 @@
 package com.aliang.rule.processor.impl;
 
-import com.aliang.logger.*;
-import com.aliang.logger.impl.*;
 import com.aliang.rule.processor.*;
-
-import java.util.*;
+import com.aliang.utils.*;
 
 /**
  * 前缀处理器
- * 在字符串前添加指定的前缀
+ * 在输入值前添加指定的前缀
  * <p>
  * 配置格式：prefix:前缀字符串
  * <p>
@@ -60,44 +57,19 @@ import java.util.*;
  * 4. 非字符串类型的输入将被转换为字符串后处理
  * 5. 如果输入为null，则直接返回null
  */
-public class PrefixProcessor implements ValueProcessor {
+public class PrefixProcessor extends AbstractProcessor {
     private final String prefix;
-    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public PrefixProcessor(String prefix) {
+        super("PrefixProcessor");
         this.prefix = prefix != null ? prefix : "";
-        logger.logProcessorInit("PrefixProcessor", "前缀: " + this.prefix);
+        ProcessorUtils.logProcessResult(processorName, null, "前缀: " + this.prefix, null);
     }
 
     @Override
-    public Object doProcess(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        if (value instanceof List<?>) {
-            List<?> list = (List<?>) value;
-            List<Object> result = new ArrayList<>();
-            for (Object item : list) {
-                result.add(doProcess(item));
-            }
-            return result;
-        } else if (value instanceof Map<?, ?>) {
-            Map<?, ?> map = (Map<?, ?>) value;
-            Map<Object, Object> result = new HashMap<>();
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                result.put(entry.getKey(), doProcess(entry.getValue()));
-            }
-            return result;
-        }
-
-        try {
-            String result = prefix + value;
-            logger.logProcessSuccess("PrefixProcessor", value, result);
-            return result;
-        } catch (Exception e) {
-            logger.logProcessFailure("PrefixProcessor", value, e.getMessage());
-            return value;
-        }
+    protected Object processValue(Object value) {
+        String result = prefix + value;
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 }

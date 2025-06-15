@@ -1,13 +1,11 @@
 package com.aliang.rule.processor.impl;
 
-import com.aliang.logger.*;
-import com.aliang.logger.impl.*;
 import com.aliang.rule.processor.*;
 import com.aliang.utils.*;
 
 /**
- * 字符串截取处理器
- * 从字符串中截取指定范围的子串
+ * 子字符串处理器
+ * 从输入字符串中提取指定范围的子字符串
  * <p>
  * 配置格式：substring:起始位置,结束位置
  * 位置说明：
@@ -57,73 +55,34 @@ import com.aliang.utils.*;
  * 4. 非字符串类型的输入将被转换为字符串后处理
  * 5. 会自动处理越界情况，确保安全运行
  */
-public class SubstringProcessor implements ValueProcessor {
+public class SubstringProcessor extends AbstractProcessor {
     private final int start;
     private final int end;
-    private final ProcessorLogger logger = new DefaultProcessorLogger();
 
     public SubstringProcessor(String config) {
-        if (config == null || config.isEmpty()) {
-            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
-            throw new IllegalArgumentException("截取处理器配置不能为空");
-        }
-
-        String[] parts = config.split(",");
-        if (parts.length != 2) {
-            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
-            throw new IllegalArgumentException("截取处理器配置格式错误，应为: start,end");
-        }
-
-        try {
-            this.start = Integer.parseInt(parts[0]);
-            this.end = Integer.parseInt(parts[1]);
-
-            if (start < 0 || end < start) {
-                logger.logInvalidConfig("SubstringProcessor", config, "0,10");
-                throw new IllegalArgumentException("无效的截取范围: 起始位置不能小于0，结束位置不能小于起始位置");
-            }
-
-            logger.logProcessorInit("SubstringProcessor",
-                    String.format("截取范围: [%d, %d]", start, end));
-        } catch (NumberFormatException e) {
-            logger.logInvalidConfig("SubstringProcessor", config, "0,10");
-            throw new IllegalArgumentException("无效的截取范围配置: " + e.getMessage());
-        }
+        super("SubstringProcessor");
+        String[] range = config != null ? config.split(",") : new String[0];
+        this.start = range.length > 0 ? Integer.parseInt(range[0]) : 0;
+        this.end = range.length > 1 ? Integer.parseInt(range[1]) : -1;
+        ProcessorUtils.logProcessResult(processorName, null,
+                String.format("范围: %d - %s", start, end == -1 ? "end" : end), null);
     }
 
     @Override
-    public Object doProcess(Object value) {
-        if (value == null) {
-            return null;
-        }
-
-        /*  如果是集合或 Map，递归处理其内部元素 */
-        if (value instanceof java.util.Collection<?> || value instanceof java.util.Map<?, ?>) {
-            return ProcessorUtils.processCollection(value, this);
-        }
-
-        try {
-            String strValue;
-            if (value instanceof String) {
-                strValue = (String) value;
-            } else {
-                strValue = String.valueOf(value);
-            }
-
-            if (strValue.length() < start) {
-                logger.logProcessFailure("SubstringProcessor", value,
-                        String.format("字符串长度(%d)小于起始位置(%d)", strValue.length(), start));
-                return value;
-            }
-
-            int actualEnd = Math.min(end, strValue.length());
-            String result = strValue.substring(start, actualEnd);
-
-            logger.logProcessSuccess("SubstringProcessor", value, result);
-            return result;
-        } catch (Exception e) {
-            logger.logProcessFailure("SubstringProcessor", value, e.getMessage());
+    protected Object processValue(Object value) {
+        if (!(value instanceof String)) {
             return value;
         }
+
+        String str = (String) value;
+        String result;
+        if (end == -1) {
+            result = str.substring(start);
+        } else {
+            result = str.substring(start, Math.min(end, str.length()));
+        }
+
+        ProcessorUtils.logProcessResult(processorName, value, result, null);
+        return result;
     }
 } 
